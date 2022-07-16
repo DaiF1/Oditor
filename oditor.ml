@@ -1,21 +1,26 @@
-(* Return a termios for reading input.
-    Copy of stdin with disabled echo and waiting for return key *)
-let raw_term () =
-    let term = Unix.tcgetattr Unix.stdin in
+(* Global terminal *)
+let term = Unix.tcgetattr Unix.stdin;;
+
+(* Open terminal raw mode
+    Terminal with disabled echo and no return needed to read buffer *)
+let enter_raw () =
     Unix.tcsetattr Unix.stdin Unix.TCSADRAIN
-        { term with Unix.c_icanon = false; Unix.c_echo = false};
-    term;;
+        { term with Unix.c_icanon = false; Unix.c_echo = false};;
+
+(* Exit terminal raw mode *)
+let exit_raw () =
+    Unix.tcsetattr Unix.stdin Unix.TCSADRAIN
+        { term with Unix.c_icanon = true; Unix.c_echo = true};;
 
 (* Read a char from given termios
     Return the read char *)
-let get_char term = 
-    let res = input_char stdin in
-    Unix.tcsetattr Unix.stdin Unix.TCSADRAIN term;
-    res
+let get_char () = 
+    input_char stdin;;
 
+(* Main loop
+    Quit if letter 'q' pressed *)
 let rec loop () =
-    let term = raw_term () in
-    if get_char term == 'q' then ()
+    if get_char () == 'q' then exit_raw ()
     else loop ();;
 
-let () = loop ();;
+let () = enter_raw (); loop ();;

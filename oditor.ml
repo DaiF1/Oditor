@@ -5,12 +5,14 @@ let term = Unix.tcgetattr Unix.stdin;;
     Terminal with disabled echo and read byte by byte *)
 let enter_raw () =
     Unix.tcsetattr Unix.stdin Unix.TCSADRAIN
-        { term with Unix.c_icanon = false; Unix.c_echo = false};;
+        { term with Unix.c_icanon = false; Unix.c_echo = false;
+            Unix.c_isig = false; Unix.c_ixon = false; Unix.c_icrnl = false};;
 
 (* Exit terminal raw mode *)
 let exit_raw () =
     Unix.tcsetattr Unix.stdin Unix.TCSADRAIN
-        { term with Unix.c_icanon = true; Unix.c_echo = true};;
+        { term with Unix.c_icanon = true; Unix.c_echo = true;
+            Unix.c_isig = true; Unix.c_ixon = true; Unix.c_icrnl = true};;
 
 (* Read a char from given termios
     Return the read char *)

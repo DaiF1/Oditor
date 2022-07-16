@@ -6,13 +6,15 @@ let term = Unix.tcgetattr Unix.stdin;;
 let enter_raw () =
     Unix.tcsetattr Unix.stdin Unix.TCSADRAIN
         { term with Unix.c_icanon = false; Unix.c_echo = false;
-            Unix.c_isig = false; Unix.c_ixon = false; Unix.c_icrnl = false};;
+            Unix.c_isig = false; Unix.c_ixon = false; 
+            Unix.c_icrnl = false; Unix.c_opost = false};;
 
 (* Exit terminal raw mode *)
 let exit_raw () =
     Unix.tcsetattr Unix.stdin Unix.TCSADRAIN
         { term with Unix.c_icanon = true; Unix.c_echo = true;
-            Unix.c_isig = true; Unix.c_ixon = true; Unix.c_icrnl = true};;
+            Unix.c_isig = true; Unix.c_ixon = true; 
+            Unix.c_icrnl = true; Unix.c_opost = true};;
 
 (* Read a char from given termios
     Return the read char *)
@@ -33,9 +35,11 @@ let rec loop () =
         begin
             begin
                 if printable c then
-                    print_endline (Printf.sprintf "%d ('%c')" (Char.code c) c)
+                    (Printf.printf "%d ('%c')\r\n" (Char.code c) c;
+                    flush stdout)
                 else
-                    print_endline (Printf.sprintf "%d" (Char.code c))
+                    (Printf.printf "%d\r\n" (Char.code c);
+                    flush stdout)
             end;
             loop ()
         end;;

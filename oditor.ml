@@ -1,11 +1,28 @@
-(* Global terminal *)
-let term = Unix.tcgetattr Unix.stdin;;
+(* Terminal definition *)
+type termio = {
+    io : Unix.terminal_io; 
+    mutable rows : int; 
+    mutable cols : int
+};;
+
+(* Convert int option to int *)
+let int_of_intop = function None -> 0 | Some n -> n;;
+
+(* Global Term *)
+let term = 
+    let (r, c) = (Terminal_size.get_rows (), Terminal_size.get_columns ()) in
+    {
+        io = Unix.tcgetattr Unix.stdin; 
+        rows = int_of_intop r;
+        cols = int_of_intop c
+    };;
+
 (* Initial terminal char size *)
-let isize = term.c_csize;;
+let isize = term.io.c_csize;;
 (* Initial terminal read minimal input *)
-let imin = term.c_vmin;;
+let imin = term.io.c_vmin;;
 (* Initial terminal read timeout *)
-let itime = term.c_vtime
+let itime = term.io.c_vtime
 
 (* Return ctrl+key code *)
 let ctrl key = Char.chr ((Char.code key) land 0x1f);;
@@ -14,7 +31,7 @@ let ctrl key = Char.chr ((Char.code key) land 0x1f);;
     Terminal with disabled echo and read byte by byte *)
 let enter_raw () =
     Unix.tcsetattr Unix.stdin Unix.TCSADRAIN
-        { term with Unix.c_icanon = false; Unix.c_echo = false;
+        { term.io with Unix.c_icanon = false; Unix.c_echo = false;
             Unix.c_isig = false; Unix.c_ixon = false; 
             Unix.c_icrnl = false; Unix.c_opost = false;
             Unix.c_brkint = false; Unix.c_inpck = false;
@@ -24,7 +41,7 @@ let enter_raw () =
 (* Exit terminal raw mode *)
 let exit_raw () =
     Unix.tcsetattr Unix.stdin Unix.TCSADRAIN
-        { term with Unix.c_icanon = true; Unix.c_echo = true;
+        { term.io with Unix.c_icanon = true; Unix.c_echo = true;
             Unix.c_isig = true; Unix.c_ixon = true; 
             Unix.c_icrnl = true; Unix.c_opost = true;
             Unix.c_brkint = true; Unix.c_inpck = true;
@@ -42,7 +59,7 @@ let draw_rows () =
     let rec draw y = match y with
         | 0 -> ()
         | y -> output_string stdout "~\r\n"; draw (y - 1)
-    in draw 30;;
+    in output_string stdout "\r\n"; draw (term.rows - 2);;
 
 (* Refresh editor screen *)
 let refresh_screen () =

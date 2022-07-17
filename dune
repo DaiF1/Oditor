@@ -1,4 +1,4 @@
 (executable
   (name oditor)
   (modules oditor)
-  (libraries lwt unix))
+  (libraries unix terminal_size))

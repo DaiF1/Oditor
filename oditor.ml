@@ -1,7 +1,12 @@
 (* Global terminal *)
 let term = Unix.tcgetattr Unix.stdin;;
-(* Initial terminal char size. Used to reset terminal parameters *)
+(* Initial terminal char size *)
 let isize = term.c_csize;;
+(* Initial terminal read minimal input *)
+let imin = term.c_vmin;;
+(* Initial terminal read timeout *)
+let itime = term.c_vtime
+
 
 (* Open terminal raw mode
     Terminal with disabled echo and read byte by byte *)
@@ -11,21 +16,24 @@ let enter_raw () =
             Unix.c_isig = false; Unix.c_ixon = false; 
             Unix.c_icrnl = false; Unix.c_opost = false;
             Unix.c_brkint = false; Unix.c_inpck = false;
-            Unix.c_istrip = false; Unix.c_cisize = 8};;
+            Unix.c_istrip = false; Unix.c_csize = 8;
+            Unix.c_vmin = 0; Unix.c_vtime = 1};;
 
 (* Exit terminal raw mode *)
 let exit_raw () =
     Unix.tcsetattr Unix.stdin Unix.TCSADRAIN
         { term with Unix.c_icanon = true; Unix.c_echo = true;
             Unix.c_isig = true; Unix.c_ixon = true; 
-            Unix.c_icrnl = true; Unix.c_opost = true
+            Unix.c_icrnl = true; Unix.c_opost = true;
             Unix.c_brkint = true; Unix.c_inpck = true;
-            Unix.c_istrip = true; Unix.c_csize = isize};;
+            Unix.c_istrip = true; Unix.c_csize = isize;
+            Unix.c_vmin = imin; Unix.c_vtime = itime};;
 
 (* Read a char from given termios
     Return the read char *)
 let get_char () = 
-    input_char stdin;;
+    try input_char stdin
+    with End_of_file -> '\000';;
 
 (* Return true if char is printable *)
 let printable c =

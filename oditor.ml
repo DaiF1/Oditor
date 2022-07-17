@@ -7,6 +7,8 @@ let imin = term.c_vmin;;
 (* Initial terminal read timeout *)
 let itime = term.c_vtime
 
+(* Return ctrl+key code *)
+let ctrl key = Char.chr ((Char.code key) land 0x1f);;
 
 (* Open terminal raw mode
     Terminal with disabled echo and read byte by byte *)
@@ -41,10 +43,10 @@ let printable c =
     c >= 32 && c < 127;;
 
 (* Main loop
-    Quit if letter 'q' pressed *)
+    Quit if ctrl+q is pressed *)
 let rec loop () =
     let c = get_char () in
-    if c == 'q' then exit_raw ()
+    if c = ctrl 'q' then exit_raw ()
     else
         begin
             begin

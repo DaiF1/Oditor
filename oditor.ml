@@ -57,7 +57,7 @@ let exit_raw () =
 (* Draw tildes on each row *)
 let draw_rows () =
     let rec draw y = match y with
-        | 0 -> ()
+        | 0 -> output_string stdout "~"
         | y -> output_string stdout "~\r\n"; draw (y - 1)
     in output_string stdout "\r\n"; draw (term.rows - 2);;
 

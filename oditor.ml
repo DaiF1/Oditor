@@ -33,9 +33,14 @@ let exit_raw () =
 
 
 (* Return true if char is printable *)
-let printable c =
+(*let printable c =
     let c = Char.code c in
-    c >= 32 && c < 127;;
+    c >= 32 && c < 127;;*)
+
+(* Clear terminal screen *)
+let clear_screen () =
+    output_string stdout "\x1b[2J";
+    output_string stdout "\x1b[H";;
 
 (* Read byte from stdin
     Return the read byte *)
@@ -43,9 +48,9 @@ let read_key () =
     try input_char stdin
     with End_of_file -> '\000';;
 
-(* Process key presses*)
-let process_key () = match read_key with
-    | c when c = ctrl 'q' -> exit_raw (); 1
+(* Process key presses *)
+let process_key () = match read_key () with
+    | c when c = ctrl 'q' -> clear_screen (); exit_raw (); 1
     | _ -> 0;;
 
 

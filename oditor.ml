@@ -37,6 +37,21 @@ let exit_raw () =
     let c = Char.code c in
     c >= 32 && c < 127;;*)
 
+(* Draw tildes on each row *)
+let draw_rows () =
+    let rec draw y = match y with
+        | 0 -> ()
+        | y -> output_string stdout "~\r\n"; draw (y - 1)
+    in draw 30;;
+
+(* Refresh editor screen *)
+let refresh_screen () =
+    output_string stdout "\x1b[2J";
+    output_string stdout "\x1b[H";
+    draw_rows ();
+    output_string stdout "\x1b[H";
+    flush stdout;;
+
 (* Clear terminal screen *)
 let clear_screen () =
     output_string stdout "\x1b[2J";
@@ -58,7 +73,7 @@ let process_key () = match read_key () with
 (* Main loop
     Quit if ctrl+q is pressed *)
 let rec loop () =
-    clear_screen ();
+    refresh_screen ();
     if process_key () = 0 then loop ();;
 
 let () = enter_raw (); loop ();;

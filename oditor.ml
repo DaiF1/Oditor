@@ -57,16 +57,21 @@ let exit_raw () =
 (* Draw tildes on each row *)
 let draw_rows () =
     let rec draw y = match y with
-        | 0 -> output_string stdout "~"
-        | y -> output_string stdout "~\r\n"; draw (y - 1)
-    in output_string stdout "\r\n"; draw (term.rows - 2);;
+        | 0 -> output_string stdout "\x1b[K"; 
+            output_string stdout "~"
+        | y -> output_string stdout "\x1b[K"; 
+            output_string stdout "~\r\n"; draw (y - 1)
+    in output_string stdout "\x1b[K";
+        output_string stdout "\r\n"; 
+        draw (term.rows - 2);;
 
 (* Refresh editor screen *)
 let refresh_screen () =
-    output_string stdout "\x1b[2J";
+    output_string stdout "\x1b[?25l";
     output_string stdout "\x1b[H";
     draw_rows ();
     output_string stdout "\x1b[H";
+    output_string stdout "\x1b[?25h";
     flush stdout;;
 
 (* Clear terminal screen *)

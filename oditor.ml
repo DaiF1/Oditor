@@ -40,7 +40,8 @@ let exit_raw () =
 (* Clear terminal screen *)
 let clear_screen () =
     output_string stdout "\x1b[2J";
-    output_string stdout "\x1b[H";;
+    output_string stdout "\x1b[H";
+    flush stdout;;
 
 (* Read byte from stdin
     Return the read byte *)
@@ -57,6 +58,7 @@ let process_key () = match read_key () with
 (* Main loop
     Quit if ctrl+q is pressed *)
 let rec loop () =
+    clear_screen ();
     if process_key () = 0 then loop ();;
 
 let () = enter_raw (); loop ();;

@@ -2,7 +2,9 @@
 type termio = {
     io : Unix.terminal_io; 
     mutable rows : int; 
-    mutable cols : int
+    mutable cols : int;
+    mutable x : int;
+    mutable y : int;
 };;
 
 (* Convert int option to int *)
@@ -14,7 +16,9 @@ let term =
     {
         io = Unix.tcgetattr Unix.stdin; 
         rows = int_of_intop r;
-        cols = int_of_intop c
+        cols = int_of_intop c;
+        x = 0;
+        y = 0
     };;
 
 (* Initial terminal char size *)
@@ -70,7 +74,7 @@ let refresh_screen () =
     output_string stdout "\x1b[?25l";
     output_string stdout "\x1b[H";
     draw_rows ();
-    output_string stdout "\x1b[H";
+    output_string stdout (Printf.sprintf "\x1b[%d;%dH" (term.y + 1) (term.x + 1));
     output_string stdout "\x1b[?25h";
     flush stdout;;
 
@@ -86,16 +90,32 @@ let read_key () =
     try input_char stdin
     with End_of_file -> '\000';;
 
-(* Process key presses *)
+(* Move cursor on x axis *)
+let move_cx x =
+    term.x <- term.x + x;;
+
+(* Move cursor on y axis *)
+let move_cy y =
+    term.y <- term.y + y;;
+
+(* Move cursor on screen based on key pressed *)
+let move_cursor key = match key with
+    | 'h' -> move_cx (-1)
+    | 'l' -> move_cx 1
+    | 'k' -> move_cy (-1)
+    | 'j' -> move_cy 1
+    | _ -> ();;
+
+(* Process key presses. Return false if exit key pressed *)
 let process_key () = match read_key () with
-    | c when c = ctrl 'q' -> clear_screen (); exit_raw (); 1
-    | _ -> 0;;
+    | c when c = ctrl 'q' -> clear_screen (); exit_raw (); false
+    | c -> move_cursor c; true;;
 
 
 (* Main loop
     Quit if ctrl+q is pressed *)
 let rec loop () =
     refresh_screen ();
-    if process_key () = 0 then loop ();;
+    if process_key () then loop ();;
 
 let () = enter_raw (); loop ();;

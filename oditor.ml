@@ -1,10 +1,17 @@
+(* Editor Row definition *)
+type erow = {
+    mutable size : int;
+    mutable chars : string
+};;
+
 (* Terminal definition *)
 type termio = {
-    io : Unix.terminal_io; 
     mutable rows : int; 
     mutable cols : int;
     mutable x : int;
     mutable y : int;
+    mutable text : erow list;
+    io : Unix.terminal_io 
 };;
 
 (* Convert int option to int *)
@@ -14,11 +21,12 @@ let int_of_intop = function None -> 0 | Some n -> n;;
 let term = 
     let (r, c) = (Terminal_size.get_rows (), Terminal_size.get_columns ()) in
     {
-        io = Unix.tcgetattr Unix.stdin; 
         rows = int_of_intop r;
         cols = int_of_intop c;
         x = 0;
-        y = 0
+        y = 0;
+        text = [];
+        io = Unix.tcgetattr Unix.stdin
     };;
 
 (* Initial terminal char size *)
@@ -58,16 +66,38 @@ let exit_raw () =
     let c = Char.code c in
     c >= 32 && c < 127;;*)
 
+
+(* Add line to text buffer *)
+let add_line str len = 
+    let rec loop text = match text with
+        | [] -> [{chars = str; size = len}]
+        | l::t -> l::loop t
+    in term.text <- loop term.text;;
+
+(* Open file in editor *)
+let open_file path =
+    let ic = open_in path in
+    let read () = try Some (input_line ic) with End_of_file -> None in
+    let rec loop () = match read () with
+        | None -> close_in ic
+        | Some s -> add_line s (String.length s); loop ()
+    in loop ();;
+
+
 (* Draw tildes on each row *)
 let draw_rows () =
-    let rec draw y = match y with
-        | 0 -> output_string stdout "\x1b[K"; 
+    let rec draw y text = match (y, text) with
+        | (0, []) -> output_string stdout "\x1b[K"; 
             output_string stdout "~"
-        | y -> output_string stdout "\x1b[K"; 
-            output_string stdout "~\r\n"; draw (y - 1)
-    in output_string stdout "\x1b[K";
-        output_string stdout "\r\n"; 
-        draw (term.rows - 2);;
+        | (0, l::_) -> output_string stdout "\x1b[K";
+            output_string stdout l.chars
+        | (y, l::t) ->
+            output_string stdout "\x1b[K";
+            output_string stdout l.chars;
+            output_string stdout "\r\n"; draw (y - 1) t
+        | (y, []) -> output_string stdout "\x1b[K"; 
+            output_string stdout "~\r\n"; draw (y - 1) []
+    in draw (term.rows - 2) term.text;;
 
 (* Refresh editor screen *)
 let refresh_screen () =
@@ -122,4 +152,4 @@ let rec loop () =
     refresh_screen ();
     if process_key () then loop ();;
 
-let () = enter_raw (); loop ();;
+let () = enter_raw (); open_file "oditor.ml"; loop ();;

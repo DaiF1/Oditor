@@ -92,11 +92,15 @@ let read_key () =
 
 (* Move cursor on x axis *)
 let move_cx x =
-    term.x <- term.x + x;;
+    term.x <- if term.x + x < 0 then 0
+        else if term.x + x > term.cols then term.cols
+        else term.x + x;;
 
 (* Move cursor on y axis *)
 let move_cy y =
-    term.y <- term.y + y;;
+    term.y <- if term.y + y < 0 then 0
+        else if term.y + y > term.rows then term.rows
+        else term.y + y;;
 
 (* Move cursor on screen based on key pressed *)
 let move_cursor key = match key with

@@ -7,10 +7,12 @@ type erow = {
 (* Terminal definition *)
 type termio = {
     mutable rows : int; 
+    mutable rowoff : int;
     mutable cols : int;
     mutable x : int;
     mutable y : int;
     mutable text : erow list;
+    mutable numlines : int;
     io : Unix.terminal_io 
 };;
 
@@ -22,10 +24,12 @@ let term =
     let (r, c) = (Terminal_size.get_rows (), Terminal_size.get_columns ()) in
     {
         rows = int_of_intop r;
+        rowoff = 0;
         cols = int_of_intop c;
         x = 0;
         y = 0;
         text = [];
+        numlines = 0;
         io = Unix.tcgetattr Unix.stdin
     };;
 
@@ -79,14 +83,18 @@ let open_file path =
     let ic = open_in path in
     let read () = try Some (input_line ic) with End_of_file -> None in
     let rec loop () = match read () with
-        | None -> close_in ic
-        | Some s -> add_line s (String.length s); loop ()
-    in loop ();;
+        | None -> close_in ic; 0
+        | Some s -> add_line s (String.length s); loop () + 1
+    in term.numlines <- loop ();;
 
 
 (* Draw tildes on each row *)
 let draw_rows () =
-    let rec draw y text = match (y, text) with
+    let rec prepare_text text off = match (text, off) with
+        | (t, 0) -> t
+        | ([], _) -> []
+        | (_::t, o) -> prepare_text t (o - 1)
+    in let rec draw y text = match (y, text) with
         | (0, []) -> output_string stdout "\x1b[K"; 
             output_string stdout "~"
         | (0, l::_) -> output_string stdout "\x1b[K";
@@ -97,7 +105,7 @@ let draw_rows () =
             output_string stdout "\r\n"; draw (y - 1) t
         | (y, []) -> output_string stdout "\x1b[K"; 
             output_string stdout "~\r\n"; draw (y - 1) []
-    in draw (term.rows - 2) term.text;;
+    in draw (term.rows - 1) (prepare_text term.text term.rowoff);;
 
 (* Refresh editor screen *)
 let refresh_screen () =
@@ -128,8 +136,17 @@ let move_cx x =
 
 (* Move cursor on y axis *)
 let move_cy y =
-    term.y <- if term.y + y < 0 then 0
-        else if term.y + y > term.rows then term.rows
+    term.y <- if term.y + y < 0 then
+            begin
+                term.rowoff <- if term.rowoff <= 0 then 0 
+                else term.rowoff - 1; 0
+            end
+        else if term.y + y > term.rows then 
+            begin
+                term.rowoff <- if term.rowoff >= term.numlines - term.rows 
+                then term.numlines - term.rows
+                else term.rowoff + 1; term.rows
+            end
         else term.y + y;;
 
 (* Move cursor on screen based on key pressed *)

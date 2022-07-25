@@ -12,22 +12,23 @@ type emode =
 
 (* Terminal definition *)
 type termio = {
-    mutable rows : int; 
-    mutable rowoff : int;
-    mutable cols : int;
-    mutable colsoff : int;
-    mutable x : int;
-    mutable y : int;
-    mutable text : erow list;
-    mutable numlines : int;
-    mutable mode : emode;
-    io : Unix.terminal_io 
+    mutable rows : int;         (* Number of rows in terminal *) 
+    mutable rowoff : int;       (* Current row offset *)
+    mutable cols : int;         (* Number of columns in terminal *)
+    mutable colsoff : int;      (* Current column offset *)
+    mutable x : int;            (* Cursor x position *)
+    mutable y : int;            (* Cursor y position *)
+    mutable text : erow list;   (* Text buffer *)
+    mutable numlines : int;     (* Number of lines in text buffer *)
+    mutable mode : emode;       (* Current Editor mode*)
+    mutable command : string;   (* Command buffer *)
+    io : Unix.terminal_io       (* Editor terminal io *)
 };;
 
 (* Convert int option to int *)
 let int_of_intop = function None -> 0 | Some n -> n;;
 
-(* Global Term *)
+(* Global Editor *)
 let term = 
     let (r, c) = (Terminal_size.get_rows (), Terminal_size.get_columns ()) in
     {
@@ -40,6 +41,7 @@ let term =
         text = [];
         numlines = 0;
         mode = NORMAL;
+        command = "";
         io = Unix.tcgetattr Unix.stdin
     };;
 
@@ -56,7 +58,7 @@ let imin = term.io.c_vmin;;
 let itime = term.io.c_vtime
 
 (* Return ctrl+key code *)
-let ctrl key = Char.chr ((Char.code key) land 0x1f);;
+(*let ctrl key = Char.chr ((Char.code key) land 0x1f);;*)
 
 (* Open terminal raw mode
     Terminal with disabled echo and read byte by byte *)
@@ -187,6 +189,11 @@ let move_cursor key = match key with
     | 'j' -> move_cy 1
     | _ -> ();;
 
+(* Execute command stored in buffer. Return false if exit command entered *)
+let read_command () = match term.command with
+    | "q" -> false
+    | _ -> true;;
+
 (* Process key presses. Return false if exit key pressed *)
 let process_key () = 
     match term.mode with
@@ -194,19 +201,24 @@ let process_key () =
             begin
                 match read_key () with
                     | c when c = ':' -> term.mode <- COMMAND; true
-                    | c when c = 'i' -> term.mode <- INSERT; true
+                    | c when c = 'i' -> term.mode <- INSERT; true 
                     | c -> move_cursor c; true
             end
         | COMMAND -> 
             begin
                 match read_key () with
-                    | c when c = ctrl 'q' -> false
-                    | _ -> true
+                    | c when c = '\x1b' ->
+                            let seq1 = read_key () in
+                            if seq1 = '\000' then term.mode <- NORMAL; true
+                    | c when c = '\r' -> read_command ()
+                    | c -> term.command <- term.command ^ Char.escaped c; true
             end
         | INSERT ->
             begin
                 match read_key () with
-                    | c when c = ctrl 'q' -> false
+                    | c when c = '\x1b' ->
+                            let seq1 = read_key () in
+                            if seq1 = '\000' then term.mode <- NORMAL; true
                     | _ -> true
             end
 

@@ -188,33 +188,34 @@ let move_cursor key = match key with
     | _ -> ();;
 
 (* Process key presses. Return false if exit key pressed *)
-let process_key () = match term.mode with
-    | NORMAL -> 
-        begin
-            match read_key () with
-            | c when c = ctrl 'q' -> clear_screen (); exit_raw (); false
-            | c when c = ':' -> term.mode <- COMMAND; true
-            | c when c = 'i' -> term.mode <- INSERT; true
-            | c -> move_cursor c; true
-        end
-    | COMMAND -> 
-        begin
-            match read_key () with
-            | c when c = ctrl 'q' -> clear_screen (); exit_raw (); false
-            | _ -> true
-        end
-    | INSERT ->
-        begin
-            match read_key () with
-            | c when c = ctrl 'q' -> clear_screen (); exit_raw (); false
-            | _ -> true
-        end
+let process_key () = 
+    match term.mode with
+        | NORMAL -> 
+            begin
+                match read_key () with
+                    | c when c = ':' -> term.mode <- COMMAND; true
+                    | c when c = 'i' -> term.mode <- INSERT; true
+                    | c -> move_cursor c; true
+            end
+        | COMMAND -> 
+            begin
+                match read_key () with
+                    | c when c = ctrl 'q' -> false
+                    | _ -> true
+            end
+        | INSERT ->
+            begin
+                match read_key () with
+                    | c when c = ctrl 'q' -> false
+                    | _ -> true
+            end
 
 
-(* Main loop
+                    (* Main loop
     Quit if ctrl+q is pressed *)
 let rec loop () =
     refresh_screen ();
-    if process_key () then loop ();;
+    if process_key () then loop ()
+    else (clear_screen (); exit_raw ());;
 
 let () = enter_raw (); open_file "oditor.ml"; loop ();;

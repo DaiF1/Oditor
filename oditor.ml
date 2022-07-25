@@ -196,11 +196,11 @@ let move_cy y =
                 term.rowoff <- if term.rowoff <= 0 then 0 
                 else term.rowoff - 1; 0
             end
-        else if term.y + y > term.rows then 
+        else if term.y + y > term.rows - 3 then 
             begin
-                term.rowoff <- if term.rowoff >= term.numlines - term.rows 
-                then term.numlines - term.rows
-                else term.rowoff + 1; term.rows
+                term.rowoff <- if term.rowoff >= term.numlines - term.rows - 2
+                then term.numlines - term.rows - 2
+                else term.rowoff + 1; term.rows - 3
             end
         else term.y + y;;
 

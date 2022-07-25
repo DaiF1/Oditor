@@ -197,10 +197,12 @@ let move_cursor key = match key with
     | 'j' -> move_cy 1
     | _ -> ();;
 
-(* Execute command stored in buffer. Return false if exit command entered *)
-let read_command () = match term.command with
-    | "q" -> term.command <- ""; false
-    | _ -> true;;
+(* Execute command stored in buffer and empty it. 
+    Return false if exit command entered *)
+let read_command () = let result = match term.command with
+        | "q" -> false
+        | _ ->true
+    in term.command <- ""; result;;
 
 (* Process key presses. Return false if exit key pressed *)
 let process_key () = 

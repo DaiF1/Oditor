@@ -10,6 +10,11 @@ type emode =
     | COMMAND
     | INSERT;;
 
+let string_of_mode mode = match mode with
+    | NORMAL -> "NORMAL"
+    | COMMAND -> "COMMAND"
+    | INSERT -> "INSERT";;
+
 (* Terminal definition *)
 type termio = {
     mutable rows : int;         (* Number of rows in terminal *) 
@@ -119,10 +124,13 @@ let draw_rows () =
         | ([], _) -> []
         | (_::t, o) -> prepare_text t (o - 1)
     in let rec draw y text = match (y, text) with
-        | (0, []) -> output_string stdout "\x1b[K"; 
-            output_string stdout "~"
-        | (0, l::_) -> output_string stdout "\x1b[K";
-            output_string stdout (cut_lign l.chars term.colsoff)
+        | (0, _) -> output_string stdout "\x1b[K"; 
+            let str = if term.mode = COMMAND then ":" ^ term.command
+                else "" in
+            output_string stdout str
+        | (1, l) -> output_string stdout "\x1b[K"; 
+            output_string stdout (string_of_mode term.mode); 
+            output_string stdout "\r\n"; draw (y - 1) l
         | (y, l::t) ->
             output_string stdout "\x1b[K";
             output_string stdout (cut_lign l.chars term.colsoff);
@@ -191,7 +199,7 @@ let move_cursor key = match key with
 
 (* Execute command stored in buffer. Return false if exit command entered *)
 let read_command () = match term.command with
-    | "q" -> false
+    | "q" -> term.command <- ""; false
     | _ -> true;;
 
 (* Process key presses. Return false if exit key pressed *)
@@ -207,6 +215,10 @@ let process_key () =
         | COMMAND -> 
             begin
                 match read_key () with
+                    | '\000' -> true
+                    | '\127' -> let l = String.length term.command in
+                            term.command <- String.sub term.command 0 (l - 1);
+                            true
                     | c when c = '\x1b' ->
                             let seq1 = read_key () in
                             if seq1 = '\000' then term.mode <- NORMAL; true

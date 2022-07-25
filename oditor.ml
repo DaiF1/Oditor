@@ -35,6 +35,11 @@ let term =
         io = Unix.tcgetattr Unix.stdin
     };;
 
+(* Load current term size *)
+let load_term_size () = 
+    let (r, c) = (Terminal_size.get_rows (), Terminal_size.get_columns ()) in
+    term.rows <- (int_of_intop r); term.cols <- (int_of_intop c);;
+
 (* Initial terminal char size *)
 let isize = term.io.c_csize;;
 (* Initial terminal read minimal input *)
@@ -118,6 +123,7 @@ let draw_rows () =
 
 (* Refresh editor screen *)
 let refresh_screen () =
+    load_term_size ();
     output_string stdout "\x1b[?25l";
     output_string stdout "\x1b[H";
     draw_rows ();

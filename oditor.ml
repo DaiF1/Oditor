@@ -229,7 +229,7 @@ let process_key () =
         | COMMAND -> 
             begin
                 match read_key () with
-                    | '\000' -> true
+                    | '\000' | ':' -> true
                     | '\127' -> let l = String.length term.command in
                             term.command <- 
                                 if l > 0 then String.sub term.command 0 (l - 1)

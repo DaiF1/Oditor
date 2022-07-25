@@ -9,6 +9,7 @@ type termio = {
     mutable rows : int; 
     mutable rowoff : int;
     mutable cols : int;
+    mutable colsoff : int;
     mutable x : int;
     mutable y : int;
     mutable text : erow list;
@@ -26,6 +27,7 @@ let term =
         rows = int_of_intop r;
         rowoff = 0;
         cols = int_of_intop c;
+        colsoff = 0;
         x = 0;
         y = 0;
         text = [];
@@ -90,7 +92,14 @@ let open_file path =
 
 (* Draw tildes on each row *)
 let draw_rows () =
-    let rec prepare_text text off = match (text, off) with
+    let cut_lign line off =
+        let max = term.cols in
+        let l = String.length line in
+        let len = if l - off > max then max
+            else l - off in
+        if len > 0 then String.sub line off len
+        else ""
+    in let rec prepare_text text off = match (text, off) with
         | (t, 0) -> t
         | ([], _) -> []
         | (_::t, o) -> prepare_text t (o - 1)
@@ -98,10 +107,10 @@ let draw_rows () =
         | (0, []) -> output_string stdout "\x1b[K"; 
             output_string stdout "~"
         | (0, l::_) -> output_string stdout "\x1b[K";
-            output_string stdout l.chars
+            output_string stdout (cut_lign l.chars term.colsoff)
         | (y, l::t) ->
             output_string stdout "\x1b[K";
-            output_string stdout l.chars;
+            output_string stdout (cut_lign l.chars term.colsoff);
             output_string stdout "\r\n"; draw (y - 1) t
         | (y, []) -> output_string stdout "\x1b[K"; 
             output_string stdout "~\r\n"; draw (y - 1) []
@@ -130,8 +139,15 @@ let read_key () =
 
 (* Move cursor on x axis *)
 let move_cx x =
-    term.x <- if term.x + x < 0 then 0
-        else if term.x + x > term.cols then term.cols
+    term.x <- if term.x + x < 0 then
+            begin
+                term.colsoff <- if term.colsoff <= 0 then 0
+                else term.colsoff - 1; 0
+            end
+        else if term.x + x > term.cols then 
+            begin 
+                term.colsoff <- term.colsoff + 1; term.cols
+            end
         else term.x + x;;
 
 (* Move cursor on y axis *)

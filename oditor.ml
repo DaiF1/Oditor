@@ -1,3 +1,6 @@
+(* Oditor version *)
+let version = "0.0.1"
+
 (* Editor Row definition *)
 type erow = {
     mutable size : int;
@@ -110,9 +113,17 @@ let open_file path =
     in term.numlines <- loop ();;
 
 
-(* Draw tildes on each row *)
+(* Draw text on editor, tildes if buffer empty *)
 let draw_rows () =
-    let cut_lign line off =
+    let welcome_text =
+        let text = "Oditor -- An editor for OCaml, in OCaml" and len = 39 in
+        let offset = (term.cols - len) / 2 in
+        "~" ^ String.make offset ' ' ^ text ^ "\r\n"
+    and version_text =
+        let offset = (term.cols - 13) / 2 in
+        "~" ^ String.make offset ' ' ^ "version " ^ version ^ "\r\n"
+
+    in let cut_lign line off =
         let max = term.cols in
         let l = String.length line in
         let len = if l - off > max then max
@@ -123,6 +134,7 @@ let draw_rows () =
         | (t, 0) -> t
         | ([], _) -> []
         | (_::t, o) -> prepare_text t (o - 1)
+
     in let rec draw y text = match (y, text) with
         | (0, _) -> output_string stdout "\x1b[K"; 
             let str = if term.mode = COMMAND then ":" ^ term.command
@@ -136,7 +148,10 @@ let draw_rows () =
             output_string stdout (cut_lign l.chars term.colsoff);
             output_string stdout "\r\n"; draw (y - 1) t
         | (y, []) -> output_string stdout "\x1b[K"; 
-            output_string stdout "~\r\n"; draw (y - 1) []
+            if y = term.rows / 2 + 2 then output_string stdout welcome_text
+            else if y = term.rows / 2 then output_string stdout version_text
+            else output_string stdout "~\r\n"; 
+            draw (y - 1) []
     in draw (term.rows - 1) (prepare_text term.text term.rowoff);;
 
 (* Refresh editor screen *)

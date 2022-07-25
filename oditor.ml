@@ -4,6 +4,12 @@ type erow = {
     mutable chars : string
 };;
 
+(* Editor mode *)
+type emode =
+    | NORMAL
+    | COMMAND
+    | INSERT;;
+
 (* Terminal definition *)
 type termio = {
     mutable rows : int; 
@@ -14,6 +20,7 @@ type termio = {
     mutable y : int;
     mutable text : erow list;
     mutable numlines : int;
+    mutable mode : emode;
     io : Unix.terminal_io 
 };;
 
@@ -32,6 +39,7 @@ let term =
         y = 0;
         text = [];
         numlines = 0;
+        mode = NORMAL;
         io = Unix.tcgetattr Unix.stdin
     };;
 
@@ -180,9 +188,27 @@ let move_cursor key = match key with
     | _ -> ();;
 
 (* Process key presses. Return false if exit key pressed *)
-let process_key () = match read_key () with
-    | c when c = ctrl 'q' -> clear_screen (); exit_raw (); false
-    | c -> move_cursor c; true;;
+let process_key () = match term.mode with
+    | NORMAL -> 
+        begin
+            match read_key () with
+            | c when c = ctrl 'q' -> clear_screen (); exit_raw (); false
+            | c when c = ':' -> term.mode <- COMMAND; true
+            | c when c = 'i' -> term.mode <- INSERT; true
+            | c -> move_cursor c; true
+        end
+    | COMMAND -> 
+        begin
+            match read_key () with
+            | c when c = ctrl 'q' -> clear_screen (); exit_raw (); false
+            | _ -> true
+        end
+    | INSERT ->
+        begin
+            match read_key () with
+            | c when c = ctrl 'q' -> clear_screen (); exit_raw (); false
+            | _ -> true
+        end
 
 
 (* Main loop

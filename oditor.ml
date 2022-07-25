@@ -199,10 +199,22 @@ let move_cursor key = match key with
 
 (* Execute command stored in buffer and empty it. 
     Return false if exit command entered *)
-let read_command () = let result = match term.command with
-        | "q" -> false
-        | _ ->true
-    in term.command <- ""; result;;
+let read_command () = 
+    let entries = String.split_on_char ' ' term.command in
+    match entries with 
+        | [] ->  true
+        | c::args -> 
+            let result = match c with
+                | "q" -> false
+                | "edit" ->
+                    begin
+                        match args with
+                            | [] -> true
+                            | file::_ -> open_file file;
+                                term.mode <- NORMAL; true
+                    end
+                | _ -> true
+            in term.command <- ""; result;;
 
 (* Process key presses. Return false if exit key pressed *)
 let process_key () = 
@@ -237,11 +249,11 @@ let process_key () =
             end
 
 
-                    (* Main loop
+(* Main loop
     Quit if ctrl+q is pressed *)
 let rec loop () =
     refresh_screen ();
     if process_key () then loop ()
     else (clear_screen (); exit_raw ());;
 
-let () = enter_raw (); open_file "oditor.ml"; loop ();;
+let () = enter_raw (); loop ();;

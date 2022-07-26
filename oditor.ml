@@ -105,6 +105,7 @@ let add_line str len =
 
 (* Open file in editor *)
 let open_file path =
+    term.text <- [];
     let ic = open_in path in
     let read () = try Some (input_line ic) with End_of_file -> None in
     let rec loop () = match read () with

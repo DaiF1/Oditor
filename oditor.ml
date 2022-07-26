@@ -106,12 +106,17 @@ let add_line str len =
 (* Open file in editor *)
 let open_file path =
     term.text <- [];
-    let ic = open_in path in
-    let read () = try Some (input_line ic) with End_of_file -> None in
-    let rec loop () = match read () with
-        | None -> close_in ic; 0
-        | Some s -> add_line s (String.length s); loop () + 1
-    in term.numlines <- loop ();;
+    let ic = try Some (open_in path) with Sys_error _ -> None in
+    match ic with
+    | None -> ()
+    | Some ic -> begin
+            let read () = try Some (input_line ic) with End_of_file -> None
+            in
+            let rec loop () = match read () with
+                | None -> close_in ic; 0
+                | Some s -> add_line s (String.length s); loop () + 1
+            in term.numlines <- loop ()
+        end;;
 
 
 (* Draw text on editor, tildes if buffer empty *)

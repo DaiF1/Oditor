@@ -1,0 +1,21 @@
+(library
+  (name editor)
+  (modules editor)
+  (libraries unix terminal_size))
+
+(library
+  (name display)
+  (modules display)
+  (libraries editor))
+
+(library
+  (name files)
+  (modules files)
+  (libraries editor))
+
+(library
+  (name input)
+  (modules input)
+  (libraries editor files))
+
+

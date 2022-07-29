@@ -26,7 +26,7 @@ let move_cx x =
 (* Move cursor on y axis *)
 let move_cy y =
     term.y <- 
-        if term.y + y >= term.numlines && term.numlines < term.rows - 2 then
+        if term.y + y >= term.numlines && term.numlines <= term.rows - 2 then
             term.numlines - 1
         else if term.y + y < 0 then
             begin
@@ -35,8 +35,8 @@ let move_cy y =
             end
         else if term.y + y > term.rows - 3 then 
             begin
-                term.rowoff <- if term.rowoff >= term.numlines - term.rows - 2
-                then term.numlines - term.rows - 2
+                term.rowoff <- if term.rowoff >= term.numlines - term.rows + 2
+                then term.numlines - term.rows + 2
                 else term.rowoff + 1; term.rows - 3
             end
         else term.y + y;;

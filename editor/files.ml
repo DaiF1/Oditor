@@ -13,6 +13,14 @@ let add_line str len =
         | l::t -> l::loop t
     in term.text <- loop term.text;;
 
+(* Get line at given position *)
+let get_line i =
+    let rec loop text i = match text with
+        | [] -> {size = 0; chars = ""}
+        | e::_ when i = 0 -> e
+        | _::l -> loop l (i - 1)
+    in loop term.text i;;
+
 (* Open file in editor *)
 let open_file path =
     term.text <- [];

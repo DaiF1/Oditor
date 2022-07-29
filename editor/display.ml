@@ -47,6 +47,11 @@ let draw_rows () =
             draw (y - 1) []
     in draw (term.rows - 1) (prepare_text term.text term.rowoff);;
 
+(* Show or hide cursor *)
+let toggle_cursor hide =
+    if hide then output_string stdout "\x1b[?25l"
+    else output_string stdout "\x1b[?25h";;
+
 (* Refresh editor screen *)
 let refresh_screen () =
     load_term_size ();

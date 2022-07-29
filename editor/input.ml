@@ -6,6 +6,7 @@
 
 open Editor;;
 open Files;;
+open Display;;
 
 (*** Cursor input ***)
 
@@ -38,12 +39,18 @@ let move_cy y =
         else term.y + y;;
 
 (* Move cursor on screen based on key pressed *)
-let move_cursor key = match key with
-    | 'h' -> move_cx (-1)
-    | 'l' -> move_cx 1
-    | 'k' -> move_cy (-1)
-    | 'j' -> move_cy 1
-    | _ -> ();;
+let move_cursor key = 
+    let process () = match key with
+        | 'h' -> move_cx (-1)
+        | 'l' -> move_cx 1
+        | 'k' -> move_cy (-1)
+        | 'j' -> move_cy 1
+        | _ -> ()
+    in toggle_cursor true; process (); 
+        let linelen = (get_line term.y).size in
+        term.x <- if term.x >= linelen then linelen - 1
+                else term.x;
+        toggle_cursor false;;
 
 
 (*** Command mode input ***)

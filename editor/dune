@@ -16,6 +16,6 @@
 (library
   (name input)
   (modules input)
-  (libraries editor files))
+  (libraries editor display files))
 
 

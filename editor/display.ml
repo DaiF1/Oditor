@@ -15,6 +15,8 @@ let draw_rows () =
     and version_text =
         let offset = (term.cols - 13) / 2 in
         "~" ^ String.make offset ' ' ^ "version " ^ version ^ "\r\n"
+    and status_bar =
+        "\x1b[1m" ^ string_of_mode term.mode ^ "\x1b[0m"
 
     in let cut_lign line off =
         let max = term.cols in
@@ -34,7 +36,7 @@ let draw_rows () =
                 else "" in
             output_string stdout str
         | (1, l) -> output_string stdout "\x1b[K"; 
-            output_string stdout (string_of_mode term.mode); 
+            output_string stdout status_bar; 
             output_string stdout "\r\n"; draw (y - 1) l
         | (y, l::t) ->
             output_string stdout "\x1b[K";

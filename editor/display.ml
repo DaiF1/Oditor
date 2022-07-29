@@ -16,7 +16,16 @@ let draw_rows () =
         let offset = (term.cols - 13) / 2 in
         "~" ^ String.make offset ' ' ^ "version " ^ version ^ "\r\n"
     and status_bar =
-        "\x1b[1m" ^ string_of_mode term.mode ^ "\x1b[0m"
+        let completion = if term.numlines = 0 then 100
+            else int_of_float (float_of_int term.y /. 
+                float_of_int (term.numlines - 1) *. 100.0) 
+        in let status = "\x1b[1m" ^ string_of_mode term.mode ^ "\x1b[0m " ^
+            term.filename 
+        and stats = "line " ^ string_of_int term.y ^ " (" ^
+            string_of_int completion ^ "%)" in
+        (* the '+8' is to nullify the escape codes for bold text *)
+        let offset = (term.cols - String.length status - String.length stats + 8)
+        in status ^ String.make offset ' ' ^ stats
 
     in let cut_lign line off =
         let max = term.cols in

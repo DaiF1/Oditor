@@ -33,6 +33,7 @@ type termio = {
     mutable colsoff : int;      (* Current column offset *)
     mutable x : int;            (* Cursor x position *)
     mutable y : int;            (* Cursor y position *)
+    mutable filename : string;  (* Current file name *)
     mutable text : erow list;   (* Text buffer *)
     mutable numlines : int;     (* Number of lines in text buffer *)
     mutable mode : emode;       (* Current Editor mode*)
@@ -53,6 +54,7 @@ let term =
         colsoff = 0;
         x = 0;
         y = 0;
+        filename = "[No Name]";
         text = [];
         numlines = 0;
         mode = NORMAL;

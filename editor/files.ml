@@ -23,6 +23,7 @@ let get_line i =
 
 (* Open file in editor *)
 let open_file path =
+    term.filename <- path;
     term.text <- [];
     let ic = try Some (open_in path) with Sys_error _ -> None in
     match ic with

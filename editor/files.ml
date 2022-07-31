@@ -27,7 +27,7 @@ let open_file path =
     term.text <- [];
     let ic = try Some (open_in path) with Sys_error _ -> None in
     match ic with
-    | None -> ()
+    | None -> term.help <- path ^ ": no such file or directory"
     | Some ic -> begin
             let read () = try Some (input_line ic) with End_of_file -> None
             in

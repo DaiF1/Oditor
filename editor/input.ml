@@ -70,11 +70,13 @@ let read_command () =
                 | "edit" ->
                     begin
                         match args with
-                            | [] -> true
+                            | [] -> term.mode <- NORMAL;
+                                    term.help <- "No file given"; true
                             | file::_ -> open_file file;
                                 term.mode <- NORMAL; true
                     end
-                | _ -> true
+                | c -> term.mode <- NORMAL;
+                    term.help <- c ^ ": unknown command"; true
             in term.command <- ""; result;;
 
 
@@ -92,9 +94,10 @@ let process_key () =
         | NORMAL -> 
             begin
                 match read_key () with
+                    | '\000' -> true
                     | ':' -> term.mode <- COMMAND; true
                     | 'i' -> term.mode <- INSERT; true 
-                    | c -> move_cursor c; true
+                    | c -> term.help <- ""; move_cursor c; true
             end
         | COMMAND -> 
             begin

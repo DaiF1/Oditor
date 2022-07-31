@@ -42,7 +42,7 @@ let draw_rows () =
     in let rec draw y text = match (y, text) with
         | (0, _) -> output_string stdout "\x1b[K"; 
             let str = if term.mode = COMMAND then ":" ^ term.command
-                else "" in
+                else term.help in
             output_string stdout str
         | (1, l) -> output_string stdout "\x1b[K"; 
             output_string stdout status_bar; 

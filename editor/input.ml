@@ -92,8 +92,8 @@ let process_key () =
         | NORMAL -> 
             begin
                 match read_key () with
-                    | c when c = ':' -> term.mode <- COMMAND; true
-                    | c when c = 'i' -> term.mode <- INSERT; true 
+                    | ':' -> term.mode <- COMMAND; true
+                    | 'i' -> term.mode <- INSERT; true 
                     | c -> move_cursor c; true
             end
         | COMMAND -> 
@@ -105,17 +105,15 @@ let process_key () =
                                 if l > 0 then String.sub term.command 0 (l - 1)
                                 else "";
                             true
-                    | c when c = '\x1b' ->
-                            let seq1 = read_key () in
+                    | '\x1b' -> let seq1 = read_key () in
                             if seq1 = '\000' then term.mode <- NORMAL; true
-                    | c when c = '\r' -> read_command ()
+                    | '\r' -> read_command ()
                     | c -> term.command <- term.command ^ Char.escaped c; true
             end
         | INSERT ->
             begin
                 match read_key () with
-                    | c when c = '\x1b' ->
-                            let seq1 = read_key () in
+                    | '\x1b' -> let seq1 = read_key () in
                             if seq1 = '\000' then term.mode <- NORMAL; true
                     | _ -> true
             end

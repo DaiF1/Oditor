@@ -109,7 +109,9 @@ let process_key () =
                                 else "";
                             true
                     | '\x1b' -> let seq1 = read_key () in
-                            if seq1 = '\000' then term.mode <- NORMAL; true
+                            if seq1 = '\000' then 
+                                (term.mode <- NORMAL; term.command <- ""); 
+                            true
                     | '\r' -> read_command ()
                     | c -> term.command <- term.command ^ Char.escaped c; true
             end

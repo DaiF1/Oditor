@@ -23,12 +23,12 @@ let get_line i =
 
 (* Open file in editor *)
 let open_file path =
-    term.filename <- path;
-    term.text <- [];
     let ic = try Some (open_in path) with Sys_error _ -> None in
     match ic with
     | None -> term.help <- path ^ ": no such file or directory"
     | Some ic -> begin
+            term.filename <- path;
+            term.text <- [];
             let read () = try Some (input_line ic) with End_of_file -> None
             in
             let rec loop () = match read () with

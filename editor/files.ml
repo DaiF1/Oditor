@@ -1,15 +1,17 @@
 (*
     file: files.ml
-    dependencies: editor.ml
+    dependencies: editor.ml colors.ml
     Editor file management
 *)
 
 open Editor;;
+open Colors;;
 
 (* Add line to text buffer *)
 let add_line str len = 
     let rec loop text = match text with
-        | [] -> [{chars = str; size = len; hl = []}]
+        | [] -> let row = {chars = str; size = len; hl = []} in
+            update_hl row; [row]
         | l::t -> l::loop t
     in term.text <- loop term.text;;
 

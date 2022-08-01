@@ -1,17 +1,19 @@
 (*
     file: insert.ml
-    dependencies: editor.ml
+    dependencies: editor.ml colors.ml
     Definition of all insert operations
 *)
 
 open Editor;;
+open Colors;;
 
 (* Insert char in row at given position *)
 let insert_char row c i =
     term.changed <- true;
     row.chars <- String.sub row.chars 0 i ^ Char.escaped c ^
         String.sub row.chars i (row.size - i);
-    row.size <- row.size + 1; term.x <- term.x + 1;;
+    row.size <- row.size + 1; term.x <- term.x + 1;
+    update_hl row;;
 
 (* Insert new row in text at given position *)
 let insert_row i = 
@@ -28,7 +30,8 @@ let delete_char row i =
     row.chars <- String.sub row.chars 0 (i - 1) ^ 
         String.sub row.chars i (row.size - i);
     row.size <- row.size - 1;
-    term.x <- term.x - 1;;
+    term.x <- term.x - 1;
+    update_hl row;;
 
 (* Delete row in text at given position *)
 let delete_row i =
@@ -44,6 +47,7 @@ let delete_row i =
                         term.numlines <- term.numlines - 1;
                         e.size <- e.size + last.size;
                         e.chars <- e.chars ^ last.chars;
+                        e.hl <- e.hl @ last.hl;
                         e::text
                 end
         | e::l -> e::loop l (i - 1)

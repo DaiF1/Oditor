@@ -1,10 +1,11 @@
 (*
     file: display.ml
-    dependencies: editor.ml
+    dependencies: editor.ml colors.ml
     Editor display functions
 *)
 
 open Editor;;
+open Colors;;
 
 (* Draw text on editor, tildes if buffer empty *)
 let draw_rows () =
@@ -50,7 +51,7 @@ let draw_rows () =
             output_string stdout "\r\n"; draw (y - 1) l
         | (y, l::t) ->
             output_string stdout "\x1b[K";
-            output_string stdout (cut_lign l.chars term.colsoff);
+            output_string stdout (cut_lign (hl_row l DEFAULT) term.colsoff);
             output_string stdout "\r\n"; draw (y - 1) t
         | (y, []) -> output_string stdout "\x1b[K"; 
             if term.text = [] then

@@ -59,7 +59,7 @@ let term =
         x = 0;
         y = 0;
 
-        filename = "[No Name]";
+        filename = "";
         text = [];
         numlines = 0;
 

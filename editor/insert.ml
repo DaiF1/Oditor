@@ -18,8 +18,7 @@ let insert_row i =
         | [] -> [{size = 0; chars = ""}]
         | l when i = 0 -> {size = 0; chars = ""}::l
         | e::l -> e::loop l (i - 1)
-    in term.text <- loop term.text i; term.numlines <- term.numlines + 1;
-        term.y <- term.y + 1;;
+    in term.text <- loop term.text i; term.numlines <- term.numlines + 1;;
 
 (* Delete char in row at given position *)
 let delete_char row i =

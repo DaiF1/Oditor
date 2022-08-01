@@ -17,8 +17,8 @@ let insert_char row c i =
 let insert_row i = 
     term.changed <- true;
     let rec loop text i = match text with
-        | [] -> [{size = 0; chars = ""}]
-        | l when i = 0 -> {size = 0; chars = ""}::l
+        | [] -> [{size = 0; chars = ""; hl = []}]
+        | l when i = 0 -> {size = 0; chars = ""; hl = []}::l
         | e::l -> e::loop l (i - 1)
     in term.text <- loop term.text i; term.numlines <- term.numlines + 1;;
 

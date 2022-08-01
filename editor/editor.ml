@@ -8,10 +8,20 @@
 (* Oditor version *)
 let version = "0.0.1"
 
+(* Highlight type definition *)
+type hltype =
+    | DEFAULT
+    | DIGIT
+    | STRING
+    | CHAR
+    | COMMENT
+    | KEYWORD;;
+
 (* Editor Row definition *)
 type erow = {
-    mutable size : int;
-    mutable chars : string
+    mutable size : int;         (* Size of the row *)
+    mutable chars : string;     (* Line content *)
+    mutable hl : hltype list   (* Row syntax color *)
 };;
 
 (* Editor mode *)

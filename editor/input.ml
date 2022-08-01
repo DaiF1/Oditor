@@ -82,6 +82,9 @@ let read_command () =
 
 (*** Keyboard input ***)
 
+(* Return true if ctrl+k was pressed *)
+let ctrl key = Char.chr ((Char.code key) land 0x1f);;
+
 (* Read byte from stdin
     Return the read byte *)
 let read_key () = 
@@ -108,6 +111,7 @@ let process_key () =
                                 if l > 0 then String.sub term.command 0 (l - 1)
                                 else "";
                             true
+                    | c when c = ctrl 'w' -> term.command <- ""; true
                     | '\x1b' -> let seq1 = read_key () in
                             if seq1 = '\000' then 
                                 (term.mode <- NORMAL; term.command <- ""); 

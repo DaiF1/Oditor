@@ -19,3 +19,9 @@ let insert_row i =
         | l when i = 0 -> {size = 0; chars = ""}::l
         | e::l -> e::loop l (i - 1)
     in term.text <- loop term.text i;;
+
+(* Delete char in row at given position *)
+let delete_char row i =
+    row.chars <- String.sub row.chars 0 (i - 1) ^ 
+        String.sub row.chars i (row.size - i);
+    row.size <- row.size - 1;;

@@ -52,7 +52,7 @@ let move_cursor key =
         | _ -> ()
     in toggle_cursor true; process (); 
         let linelen = (get_line (term.y + term.rowoff)).size in
-        term.x <- if term.x >= linelen then linelen - 1
+        term.x <- if term.x > linelen then linelen
                 else term.x;
         toggle_cursor false;;
 
@@ -127,11 +127,9 @@ let process_key () =
                     | '\x1b' -> let seq1 = read_key () in
                             if seq1 = '\000' then term.mode <- NORMAL; true
                     | '\127' -> let row = get_line term.y in
-                            if row.size <> 0 then 
-                            begin
-                                delete_char row term.x; 
-                                term.x <- term.x - 1
-                            end; true
+                            if term.x <> 0 then 
+                                delete_char row term.x
+                            else delete_row term.y; true
                     | c -> if term.text = [] then insert_row 0;
                             insert_char (get_line term.y) c term.x;
                             term.x <- term.x + 1; true

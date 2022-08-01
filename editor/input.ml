@@ -117,7 +117,7 @@ let process_key () =
             begin
                 match read_key () with
                     | '\000' -> true
-                    | ':' -> term.mode <- COMMAND; true
+                    | ':' -> term.mode <- COMMAND; term.help <- ""; true
                     | 'i' -> term.mode <- INSERT; true 
                     | c -> term.help <- ""; move_cursor c; true
             end

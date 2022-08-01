@@ -126,12 +126,12 @@ let process_key () =
                     | '\000' -> true
                     | '\x1b' -> let seq1 = read_key () in
                             if seq1 = '\000' then term.mode <- NORMAL; true
-                    | '\127' -> let row = get_line term.y in
+                    | '\127' ->
                             if term.x <> 0 then 
+                                let row = get_line term.y in
                                 delete_char row term.x
                             else delete_row term.y; true
                     | c -> if term.text = [] then insert_row 0;
-                            insert_char (get_line term.y) c term.x;
-                            term.x <- term.x + 1; true
+                            insert_char (get_line term.y) c term.x; true
             end
 

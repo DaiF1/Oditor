@@ -118,7 +118,8 @@ let process_key () =
                 match read_key () with
                     | '\000' -> true
                     | ':' -> term.mode <- COMMAND; term.help <- ""; true
-                    | 'i' -> term.mode <- INSERT; true 
+                    | 'i' -> term.mode <- INSERT;
+                        if term.text = [] then insert_row 0; true 
                     | c -> term.help <- ""; move_cursor c; true
             end
         | COMMAND -> 
@@ -149,7 +150,7 @@ let process_key () =
                                 let row = get_line term.y in
                                 delete_char row term.x
                             else delete_row term.y; true
-                    | c -> if term.text = [] then insert_row 0;
-                            insert_char (get_line term.y) c term.x; true
+                    | '\r' -> insert_row term.y; term.y <- term.y + 1; true
+                    | c -> insert_char (get_line term.y) c term.x; true
             end
 

@@ -1,12 +1,13 @@
 (*
     file: input.ml
-    dependencies: editor.ml files.ml 
+    dependencies: editor.ml files.ml insert.ml
     Process editor input
 *)
 
 open Editor;;
 open Files;;
 open Display;;
+open Insert;;
 
 (*** Cursor input ***)
 
@@ -122,8 +123,11 @@ let process_key () =
         | INSERT ->
             begin
                 match read_key () with
+                    | '\000' -> true
                     | '\x1b' -> let seq1 = read_key () in
                             if seq1 = '\000' then term.mode <- NORMAL; true
-                    | _ -> true
+                    | c -> if term.text = [] then insert_row 0;
+                            insert_char (get_line term.y) c term.x;
+                            term.x <- term.x + 1; true
             end
 

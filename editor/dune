@@ -14,8 +14,13 @@
   (libraries editor))
 
 (library
+  (name insert)
+  (modules insert)
+  (libraries editor))
+
+(library
   (name input)
   (modules input)
-  (libraries editor display files))
+  (libraries editor display files insert))
 
 

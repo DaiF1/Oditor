@@ -52,9 +52,13 @@ let draw_rows () =
             output_string stdout (cut_lign l.chars term.colsoff);
             output_string stdout "\r\n"; draw (y - 1) t
         | (y, []) -> output_string stdout "\x1b[K"; 
-            if y = term.rows / 2 + 2 then output_string stdout welcome_text
-            else if y = term.rows / 2 then output_string stdout version_text
-            else output_string stdout "~\r\n"; 
+            if term.text = [] then
+            begin
+                if y = term.rows / 2 + 2 then output_string stdout welcome_text
+                else if y = term.rows / 2 then output_string stdout version_text
+                else output_string stdout "~\r\n"
+            end
+            else output_string stdout "~\r\n";
             draw (y - 1) []
     in draw (term.rows - 1) (prepare_text term.text term.rowoff);;
 

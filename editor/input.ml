@@ -67,7 +67,14 @@ let read_command () =
         | [] ->  true
         | c::args -> 
             let result = match c with
-                | "q" -> false
+                | "q" -> if term.changed then 
+                        begin
+                            term.help <- "Unsaved changes. Use 'q!' to override";
+                            term.mode <- NORMAL;
+                            true
+                        end
+                        else false
+                | "q!" -> false
                 | "w" -> begin
                         match args with
                             | [] when term.filename = "" -> term.mode <- NORMAL;
@@ -151,7 +158,7 @@ let process_key () =
                                 delete_char row term.x
                             else delete_row term.y; true
                     | '\r' -> term.y <- term.y + 1; term.x <- 0; 
-                        insert_row term.y; true
+                            insert_row term.y; true
                     | c -> insert_char (get_line term.y) c term.x; true
             end
 

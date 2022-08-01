@@ -8,12 +8,14 @@ open Editor;;
 
 (* Insert char in row at given position *)
 let insert_char row c i =
+    term.changed <- true;
     row.chars <- String.sub row.chars 0 i ^ Char.escaped c ^
         String.sub row.chars i (row.size - i);
     row.size <- row.size + 1; term.x <- term.x + 1;;
 
 (* Insert new row in text at given position *)
 let insert_row i = 
+    term.changed <- true;
     let rec loop text i = match text with
         | [] -> [{size = 0; chars = ""}]
         | l when i = 0 -> {size = 0; chars = ""}::l
@@ -22,6 +24,7 @@ let insert_row i =
 
 (* Delete char in row at given position *)
 let delete_char row i =
+    term.changed <- true;
     row.chars <- String.sub row.chars 0 (i - 1) ^ 
         String.sub row.chars i (row.size - i);
     row.size <- row.size - 1;
@@ -29,6 +32,7 @@ let delete_char row i =
 
 (* Delete row in text at given position *)
 let delete_row i =
+    term.changed <- true;
     let rec loop text i = match text with
         | [] -> []
         | e::l when i = 1 -> begin

@@ -37,6 +37,7 @@ type termio = {
     mutable filename : string;  (* Current file name *)
     mutable text : erow list;   (* Text buffer *)
     mutable numlines : int;     (* Number of lines in text buffer *)
+    mutable changed : bool;     (* If changes were made to the file *)
 
     mutable mode : emode;       (* Current Editor mode*)
     mutable command : string;   (* Command buffer *)
@@ -62,6 +63,7 @@ let term =
         filename = "";
         text = [];
         numlines = 0;
+        changed = false;
 
         mode = NORMAL;
         command = "";

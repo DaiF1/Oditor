@@ -45,5 +45,6 @@ let rec buff_to_string text = match text with
 
 (* Write buffer to file *)
 let write_file path =
+    term.filename <- path;
     let oc = open_out path in
     output_string oc (buff_to_string term.text); close_out oc;; 

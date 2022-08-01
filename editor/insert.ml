@@ -33,9 +33,12 @@ let delete_row i =
         | e::l when i = 1 -> begin
                 match l with
                     | [] -> [e]
-                    | last::text -> e.size <- e.size + last.size;
-                        e.chars <- e.chars ^ last.chars;
+                    | last::text ->
+                        term.y <- term.y - 1;
+                        term.x <- e.size;
                         term.numlines <- term.numlines - 1;
+                        e.size <- e.size + last.size;
+                        e.chars <- e.chars ^ last.chars;
                         e::text
                 end
         | e::l -> e::loop l (i - 1)

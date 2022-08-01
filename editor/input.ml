@@ -68,6 +68,24 @@ let read_command () =
         | c::args -> 
             let result = match c with
                 | "q" -> false
+                | "w" -> begin
+                        match args with
+                            | [] when term.filename = "" -> term.mode <- NORMAL;
+                                term.help <- "No file name"; true
+                            | [] -> term.mode <- NORMAL; 
+                                write_file term.filename; true
+                            | file::_ -> term.mode <- NORMAL;
+                                write_file file; true
+                        end
+                | "wq" -> begin
+                        match args with
+                            | [] when term.filename = "" -> term.mode <- NORMAL;
+                                term.help <- "No file name"; false
+                            | [] -> term.mode <- NORMAL; 
+                                write_file term.filename; false
+                            | file::_ -> term.mode <- NORMAL;
+                                write_file file; false
+                        end
                 | "edit" ->
                     begin
                         match args with

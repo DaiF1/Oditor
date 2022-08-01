@@ -38,3 +38,12 @@ let open_file path =
         end;;
 
 
+(* Convert text buffer to string *)
+let rec buff_to_string text = match text with
+    | [] -> ""
+    | e::l -> e.chars ^ "\n" ^ buff_to_string l;;
+
+(* Write buffer to file *)
+let write_file path =
+    let oc = open_out path in
+    output_string oc (buff_to_string term.text); close_out oc;; 

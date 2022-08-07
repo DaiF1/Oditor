@@ -157,7 +157,7 @@ let process_key () =
                                 let row = get_line term.y in
                                 delete_char row term.x
                             else delete_row term.y; true
-                    | '\r' -> term.y <- term.y + 1; term.x <- 0; 
+                    | '\r' -> term.y <- term.y + 1;
                             insert_row term.y; true
                     | c -> insert_char (get_line term.y) c term.x; true
             end

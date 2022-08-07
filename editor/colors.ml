@@ -40,3 +40,11 @@ let hl_row row prev =
                     process_string hl (i + 1) e  
             else Char.escaped row.chars.[i] ^ process_string hl (i + 1) e 
     in process_string row.hl 0 prev ^ hl_to_esc DEFAULT;;
+
+(* Cut syntax list into 2 sublists. 
+    Returns a tuple with objects strictly before index and after *)
+let rec cut_syntax i l = match l with
+    | [] -> ([], [])
+    | l when i = 0 -> ([], l)
+    | e::l -> let (l1, l2) = cut_syntax (i - 1) l in
+            (e::l1, l2);;

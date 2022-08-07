@@ -32,7 +32,12 @@ let update_hl row =
                             DIGIT::hl (i + 1) DIGIT false
                     | '.' when prev_hl = DIGIT && not prev_sep ->
                                 DIGIT::hl (i + 1) DIGIT true
-                    | chr -> DEFAULT::hl (i + 1) DEFAULT (is_separator chr)
+                    | '"' -> if prev_hl = STRING then
+                                STRING::hl (i + 1) DEFAULT false
+                            else STRING::hl (i + 1) STRING false
+                    | chr -> if prev_hl = STRING then
+                                STRING::hl (i + 1) STRING false
+                            else DEFAULT::hl (i + 1) DEFAULT (is_separator chr)
                 end
         in row.hl <- hl 0 DEFAULT true;;
 

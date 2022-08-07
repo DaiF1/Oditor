@@ -19,14 +19,22 @@ let hl_to_esc code = match code with
 let is_digit c = let code = Char.code c - Char.code '0'
     in code < 10 && code >= 0;;
 
+(* Return true if char is separator *)
+let is_separator c = String.contains_from ",.()+-/*=~%<>[]; \000" 0 c;;
+
 (* Update row syntax highlighting *)
 let update_hl row =
-        let rec hl i = match i with
+        let rec hl i prev_hl prev_sep = match i with
             | i when i = row.size -> []
-            | i -> let chr = row.chars.[i] in
-                if is_digit chr then DIGIT::hl (i + 1)
-                else DEFAULT::hl (i + 1)
-        in row.hl <- hl 0;;
+            | i -> let chr = row.chars.[i] in begin
+                match chr with
+                    | chr when is_digit chr && (prev_sep || prev_hl = DIGIT) -> 
+                            DIGIT::hl (i + 1) DIGIT false
+                    | '.' when prev_hl = DIGIT && not prev_sep ->
+                                DIGIT::hl (i + 1) DIGIT true
+                    | chr -> DEFAULT::hl (i + 1) DEFAULT (is_separator chr)
+                end
+        in row.hl <- hl 0 DEFAULT true;;
 
 (* Apply syntax highlighting to a given lign. Takes hltype of 
     last char of previous line. *)

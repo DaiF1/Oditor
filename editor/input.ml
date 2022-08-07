@@ -42,6 +42,26 @@ let move_cy y =
             end
         else term.y + y;;
 
+(* Move to start of next word. Goto the end of the line if no word found *)
+let start_word i =
+    let row = get_line term.y in
+    let rec next i n = if i < row.size then
+            let chr = row.chars.[i] in
+            if chr = ' ' then n + 1
+            else next (i + 1) (n + 1)
+        else n
+    in term.x <- next i 0;;
+
+(* Move to end of next word. Goto the end of the line if no word found *)
+let end_word i =
+    let row = get_line term.y in
+    let rec next i n = if i < row.size then
+            let chr = row.chars.[i] in
+            if chr = ' ' && n <> 1 then n - 1
+            else next (i + 1) (n + 1)
+        else n
+    in term.x <- next i 0;;
+
 (* Move cursor on screen based on key pressed *)
 let move_cursor key = 
     let process () = match key with
@@ -49,6 +69,8 @@ let move_cursor key =
         | 'l' -> move_cx 1
         | 'k' -> move_cy (-1)
         | 'j' -> move_cy 1
+        | 'w' -> start_word term.x
+        | 'e' -> end_word term.x
         | _ -> ()
     in toggle_cursor true; process (); 
         let linelen = (get_line (term.y + term.rowoff)).size in

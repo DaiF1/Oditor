@@ -18,11 +18,19 @@ let insert_char row c i =
 (* Insert new row in text at given position *)
 let insert_row i = 
     term.changed <- true;
-    let rec loop text i = match text with
-        | [] -> [{size = 0; chars = ""; hl = []}]
-        | l when i = 0 -> {size = 0; chars = ""; hl = []}::l
-        | e::l -> e::loop l (i - 1)
-    in term.text <- loop term.text i; term.numlines <- term.numlines + 1;;
+    let rec loop text i prev = match text with
+        | [] when i <> 0 -> [{size = 0; chars = ""; hl = []}]
+        | e::l when i <> 0 -> e::loop l (i - 1) e
+        | l -> let str = String.sub prev.chars term.x (prev.size - term.x) and 
+                len = prev.size - term.x and
+                (h1, h2) = cut_syntax term.x prev.hl in
+                prev.chars <- String.sub prev.chars 0 term.x;
+                prev.size <- term.x;
+                prev.hl <- h1;
+                term.x <- 0;
+                {size = len; chars = str; hl = h2}::l
+    in term.text <- loop term.text i {size = 0; chars = ""; hl = []};
+        term.numlines <- term.numlines + 1;;
 
 (* Delete char in row at given position *)
 let delete_char row i =

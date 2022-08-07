@@ -41,7 +41,7 @@ let is_digit c = let code = Char.code c - Char.code '0'
 let is_separator c = String.contains_from ",.()+-/*=~%<>[]; \000" 0 c;;
 
 (* Update row syntax highlighting *)
-let update_hl_row row prev=
+let update_hl_row row prev =
     let rec build_key_hl len key =
         if len = 0 then []
         else key::build_key_hl (len - 1) key
@@ -59,55 +59,63 @@ let update_hl_row row prev=
                         else check_kw l i 
                     else check_kw l i 
     in let rec hl i prev_hl prev_sep = match i with
-        | i when i = row.size -> []
+        | i when i = row.size -> ([], prev_hl)
         | i -> let chr = row.chars.[i] in begin
             match chr with
                 | chr when is_digit chr && (prev_sep || prev_hl = DIGIT) -> 
-                        DIGIT::hl (i + 1) DIGIT false
+                        let (h, prev) = hl (i + 1) DIGIT false in
+                            (DIGIT::h, prev)
                 | '.' when prev_hl = DIGIT && not prev_sep ->
-                            DIGIT::hl (i + 1) DIGIT true
+                        let (h, prev) = hl (i + 1) DIGIT true in
+                            (DIGIT::h, prev)
                 | '"' when prev_hl = STRING || prev_hl = DEFAULT ->
                         if prev_hl = STRING then
-                            STRING::hl (i + 1) DEFAULT false
-                        else STRING::hl (i + 1) STRING false
+                            let (h, prev) = hl (i + 1) DEFAULT false in
+                                (STRING::h, prev)
+                        else let (h, prev) = hl (i + 1) STRING false in
+                            (STRING::h, prev)
                 | '(' when prev_hl <> STRING ->
                         if i + 1 < row.size && row.chars.[i + 1] = '*' then
-                            COMMENT::COMMENT::hl (i + 2) COMMENT false
-                        else KEYWORD2::hl (i + 1) DEFAULT true
+                            let (h, prev) = hl (i + 2) COMMENT false in
+                            (COMMENT::COMMENT::h, prev)
+                        else let (h, prev) = hl (i + 1) DEFAULT true in
+                            (KEYWORD2::h, prev)
                 | '*' when prev_hl = COMMENT ->
                         if i + 1 < row.size && row.chars.[i + 1] = ')' then
-                            COMMENT::COMMENT::hl (i + 2) DEFAULT true
-                        else COMMENT::hl (i + 1) COMMENT false
-
+                            let (h, prev) = hl (i + 2) DEFAULT true in
+                            (COMMENT::COMMENT::h, prev)
+                        else let (h, prev) = hl (i + 1) COMMENT false in
+                            (COMMENT::h, prev)
                 | chr -> 
                         if prev_hl = STRING then
-                            STRING::hl (i + 1) STRING false
+                            let (h, prev) = hl (i + 1) STRING false in 
+                                (STRING::h, prev)
                         else if prev_hl = COMMENT then
-                            COMMENT::hl (i + 1) COMMENT false
+                            let (h, prev) = hl (i + 1) COMMENT false in
+                                (COMMENT::h, prev)
                         else let n = check_kw other_keywords i in
                             if n <> 0 then
-                            build_key_hl n KEYWORD2 @ hl (i + n) DEFAULT true
+                                let (h, prev) = hl (i + n) DEFAULT true in
+                                (build_key_hl n KEYWORD2 @ h, prev)
                         else if prev_sep then
                             let n = check_kw keywords i in
                             if n = 0 then 
-                                DEFAULT::hl (i + 1) DEFAULT (is_separator chr)
-                            else build_key_hl n KEYWORD1 @ hl (i + n) DEFAULT false 
-                        else DEFAULT::hl (i + 1) DEFAULT (is_separator chr)
+                                let (h, prev) = hl (i + 1) DEFAULT (is_separator chr) in
+                                (DEFAULT::h, prev)
+                            else let (h, prev) = hl (i + n) DEFAULT false in
+                                (build_key_hl n KEYWORD1 @ h, prev)
+                        else let (h, prev) = hl (i + 1) DEFAULT (is_separator chr) in
+                            (DEFAULT::h, prev)
             end
-    in row.hl <- hl 0 prev true;;
+    in let (h, prev) = hl 0 prev true in
+        row.hl <- h; prev;;
 
 (* Update file syntax highlighting *)
 let update_hl () =
-    let rec get_prev hl = match hl with
-        | [] -> DEFAULT
-        | [e] -> e
-        | _::l -> get_prev l
-    in let rec update text prev = match text with
+    let rec update text prev = match text with
         | [] -> ()
-        | e::l -> let p = if get_prev prev = COMMENT then COMMENT
-                    else DEFAULT in
-                update_hl_row e p; update l e.hl
-    in update term.text [];;
+        | e::l -> update l (update_hl_row e prev)
+    in update term.text DEFAULT;;
 
 (* Apply syntax highlighting to a given lign. Takes hltype of 
     last char of previous line. *)

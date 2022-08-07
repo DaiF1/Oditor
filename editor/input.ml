@@ -127,6 +127,13 @@ let process_key () =
                     | ':' -> term.mode <- COMMAND; term.help <- ""; true
                     | 'i' -> term.mode <- INSERT;
                         if term.text = [] then insert_row 0; true 
+                    | 'a' -> term.x <- term.x + 1; term.mode <- INSERT;
+                        if term.text = [] then insert_row 0; true
+                    | 'I' -> term.x <- 0; term.mode <- INSERT;
+                        if term.text = [] then insert_row 0; true 
+                    | 'A' -> term.x <- (get_line term.y).size; 
+                        term.mode <- INSERT;
+                        if term.text = [] then insert_row 0; true
                     | c -> term.help <- ""; move_cursor c; true
             end
         | COMMAND -> 

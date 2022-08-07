@@ -70,17 +70,28 @@ let update_hl_row row prev=
                         if prev_hl = STRING then
                             STRING::hl (i + 1) DEFAULT false
                         else STRING::hl (i + 1) STRING false
+                | '(' when prev_hl <> STRING ->
+                        if i + 1 < row.size && row.chars.[i + 1] = '*' then
+                            COMMENT::COMMENT::hl (i + 2) COMMENT false
+                        else KEYWORD2::hl (i + 1) DEFAULT true
+                | '*' when prev_hl = COMMENT ->
+                        if i + 1 < row.size && row.chars.[i + 1] = ')' then
+                            COMMENT::COMMENT::hl (i + 2) DEFAULT true
+                        else COMMENT::hl (i + 1) COMMENT false
+
                 | chr -> 
                         if prev_hl = STRING then
                             STRING::hl (i + 1) STRING false
+                        else if prev_hl = COMMENT then
+                            COMMENT::hl (i + 1) COMMENT false
+                        else let n = check_kw other_keywords i in
+                            if n <> 0 then
+                            build_key_hl n KEYWORD2 @ hl (i + n) DEFAULT true
                         else if prev_sep then
                             let n = check_kw keywords i in
                             if n = 0 then 
-                                let n = check_kw other_keywords i in
-                                if n = 0 then
-                                    DEFAULT::hl (i + 1) DEFAULT (is_separator chr)
-                                else build_key_hl n KEYWORD2 @ hl (i + n) DEFAULT true
-                            else build_key_hl n KEYWORD1 @ hl (i + n) DEFAULT false
+                                DEFAULT::hl (i + 1) DEFAULT (is_separator chr)
+                            else build_key_hl n KEYWORD1 @ hl (i + n) DEFAULT false 
                         else DEFAULT::hl (i + 1) DEFAULT (is_separator chr)
             end
     in row.hl <- hl 0 prev true;;

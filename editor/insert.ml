@@ -13,7 +13,7 @@ let insert_char row c i =
     row.chars <- String.sub row.chars 0 i ^ Char.escaped c ^
         String.sub row.chars i (row.size - i);
     row.size <- row.size + 1; term.x <- term.x + 1;
-    update_hl row;;
+    update_hl ();;
 
 (* Insert new row in text at given position *)
 let insert_row i = 
@@ -22,15 +22,13 @@ let insert_row i =
         | [] when i <> 0 -> [{size = 0; chars = ""; hl = []}]
         | e::l when i <> 0 -> e::loop l (i - 1) e
         | l -> let str = String.sub prev.chars term.x (prev.size - term.x) and 
-                len = prev.size - term.x and
-                (h1, h2) = cut_syntax term.x prev.hl in
+                len = prev.size - term.x in
                 prev.chars <- String.sub prev.chars 0 term.x;
                 prev.size <- term.x;
-                prev.hl <- h1;
                 term.x <- 0;
-                {size = len; chars = str; hl = h2}::l
+                {size = len; chars = str; hl = []}::l
     in term.text <- loop term.text i {size = 0; chars = ""; hl = []};
-        term.numlines <- term.numlines + 1;;
+        term.numlines <- term.numlines + 1; update_hl ();;
 
 (* Delete char in row at given position *)
 let delete_char row i =
@@ -39,7 +37,7 @@ let delete_char row i =
         String.sub row.chars i (row.size - i);
     row.size <- row.size - 1;
     term.x <- term.x - 1;
-    update_hl row;;
+    update_hl ();;
 
 (* Delete row in text at given position *)
 let delete_row i =

@@ -10,8 +10,7 @@ open Colors;;
 (* Add line to text buffer *)
 let add_line str len = 
     let rec loop text = match text with
-        | [] -> let row = {chars = str; size = len; hl = []} in
-            update_hl row; [row]
+        | [] -> let row = {chars = str; size = len; hl = []} in [row]
         | l::t -> l::loop t
     in term.text <- loop term.text;;
 
@@ -37,7 +36,7 @@ let open_file path =
                 | None -> close_in ic; 0
                 | Some s -> add_line s (String.length s); loop () + 1
             in term.numlines <- loop ()
-        end;;
+    end; update_hl ();;
 
 
 (* Convert text buffer to string *)

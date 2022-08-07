@@ -41,7 +41,7 @@ let is_digit c = let code = Char.code c - Char.code '0'
 let is_separator c = String.contains_from ",.()+-/*=~%<>[]; \000" 0 c;;
 
 (* Update row syntax highlighting *)
-let update_hl row =
+let update_hl_row row prev=
     let rec build_key_hl len key =
         if len = 0 then []
         else key::build_key_hl (len - 1) key
@@ -83,7 +83,20 @@ let update_hl row =
                             else build_key_hl n KEYWORD1 @ hl (i + n) DEFAULT false
                         else DEFAULT::hl (i + 1) DEFAULT (is_separator chr)
             end
-    in row.hl <- hl 0 DEFAULT true;;
+    in row.hl <- hl 0 prev true;;
+
+(* Update file syntax highlighting *)
+let update_hl () =
+    let rec get_prev hl = match hl with
+        | [] -> DEFAULT
+        | [e] -> e
+        | _::l -> get_prev l
+    in let rec update text prev = match text with
+        | [] -> ()
+        | e::l -> let p = if get_prev prev = COMMENT then COMMENT
+                    else DEFAULT in
+                update_hl_row e p; update l e.hl
+    in update term.text [];;
 
 (* Apply syntax highlighting to a given lign. Takes hltype of 
     last char of previous line. *)

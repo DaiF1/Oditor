@@ -78,9 +78,9 @@ let update_hl row =
                             if n = 0 then 
                                 let n = check_kw other_keywords i in
                                 if n = 0 then
-                                    DEFAULT::hl (i + 1) DEFAULT false
-                                else build_key_hl n KEYWORD2 @ hl (i + n) KEYWORD2 true
-                            else build_key_hl n KEYWORD1 @ hl (i + n) KEYWORD1 false
+                                    DEFAULT::hl (i + 1) DEFAULT (is_separator chr)
+                                else build_key_hl n KEYWORD2 @ hl (i + n) DEFAULT true
+                            else build_key_hl n KEYWORD1 @ hl (i + n) DEFAULT false
                         else DEFAULT::hl (i + 1) DEFAULT (is_separator chr)
             end
     in row.hl <- hl 0 DEFAULT true;;

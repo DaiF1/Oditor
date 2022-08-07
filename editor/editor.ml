@@ -15,7 +15,8 @@ type hltype =
     | STRING
     | CHAR
     | COMMENT
-    | KEYWORD;;
+    | KEYWORD1
+    | KEYWORD2;;
 
 (* Editor Row definition *)
 type erow = {

@@ -13,7 +13,25 @@ let hl_to_esc code = match code with
     | STRING -> "\x1b[32m"
     | CHAR -> "\x1b[35m"
     | COMMENT -> "\x1b[37m"
-    | KEYWORD -> "\x1b[31m";;
+    | KEYWORD1 -> "\x1b[31m"
+    | KEYWORD2 -> "\x1b[33m";;
+
+(* OCaml keywords in alphabetic order *)
+let keywords = ["and"; "as"; "assert"; "asr"; "begin"; "class"; "constraint";
+    "do"; "done"; "downto"; "else"; "end"; "exception"; "external"; "false"; 
+    "for"; "fun"; "function"; "functor"; "if"; "in"; "include"; "inherit"; 
+    "initializer"; "land"; "lazy"; "let"; "lor"; "lsl"; "lsr"; "lxor"; "match";
+    "method"; "mod"; "module"; "mutable"; "new"; "nonrec"; "object"; "of"; 
+    "open"; "or"; "private"; "rec"; "sig"; "struct"; "then"; "to"; "true";
+    "try"; "type"; "val"; "virtual"; "when"; "while"; "with"
+];;
+
+(* Ocaml other keywords in alphabetic order *)
+let other_keywords = ["!="; "#"; "&"; "&&"; "'"; "("; ")"; "*"; "*."; "+"; "+."; 
+    ","; "-"; "-."; "->"; "."; ".."; ".~"; ":"; "::"; ":="; ":>"; ";"; ";;"; 
+    "<"; "<-"; "="; ">"; ">]"; ">}"; "?"; "["; "[<"; "[>"; "[|"; "]"; "_"; 
+    "`"; "{"; "{<"; "|"; "|]"; "||"; "}"; "~"
+]
 
 (* Return true if char is digit *)
 let is_digit c = let code = Char.code c - Char.code '0'
@@ -24,22 +42,48 @@ let is_separator c = String.contains_from ",.()+-/*=~%<>[]; \000" 0 c;;
 
 (* Update row syntax highlighting *)
 let update_hl row =
-        let rec hl i prev_hl prev_sep = match i with
-            | i when i = row.size -> []
-            | i -> let chr = row.chars.[i] in begin
-                match chr with
-                    | chr when is_digit chr && (prev_sep || prev_hl = DIGIT) -> 
-                            DIGIT::hl (i + 1) DIGIT false
-                    | '.' when prev_hl = DIGIT && not prev_sep ->
-                                DIGIT::hl (i + 1) DIGIT true
-                    | '"' -> if prev_hl = STRING then
-                                STRING::hl (i + 1) DEFAULT false
-                            else STRING::hl (i + 1) STRING false
-                    | chr -> if prev_hl = STRING then
-                                STRING::hl (i + 1) STRING false
-                            else DEFAULT::hl (i + 1) DEFAULT (is_separator chr)
-                end
-        in row.hl <- hl 0 DEFAULT true;;
+    let rec build_key_hl len key =
+        if len = 0 then []
+        else key::build_key_hl (len - 1) key
+    in let rec check_kw keys i = match keys with
+        | [] -> 0
+        | e::_ when e.[0] > row.chars.[i] -> 0
+        | e::l -> if e.[0] <> row.chars.[i] then check_kw l i
+                else let n = String.length e in
+                    if i + n <= row.size then
+                        let str = String.sub row.chars i n in
+                        if str = e then 
+                            if i + n = row.size ||
+                                is_separator (row.chars.[i + n]) then n
+                            else check_kw l i 
+                        else check_kw l i 
+                    else check_kw l i 
+    in let rec hl i prev_hl prev_sep = match i with
+        | i when i = row.size -> []
+        | i -> let chr = row.chars.[i] in begin
+            match chr with
+                | chr when is_digit chr && (prev_sep || prev_hl = DIGIT) -> 
+                        DIGIT::hl (i + 1) DIGIT false
+                | '.' when prev_hl = DIGIT && not prev_sep ->
+                            DIGIT::hl (i + 1) DIGIT true
+                | '"' when prev_hl = STRING || prev_hl = DEFAULT ->
+                        if prev_hl = STRING then
+                            STRING::hl (i + 1) DEFAULT false
+                        else STRING::hl (i + 1) STRING false
+                | chr -> 
+                        if prev_hl = STRING then
+                            STRING::hl (i + 1) STRING false
+                        else if prev_sep then
+                            let n = check_kw keywords i in
+                            if n = 0 then 
+                                let n = check_kw other_keywords i in
+                                if n = 0 then
+                                    DEFAULT::hl (i + 1) DEFAULT false
+                                else build_key_hl n KEYWORD2 @ hl (i + n) KEYWORD2 true
+                            else build_key_hl n KEYWORD1 @ hl (i + n) KEYWORD1 false
+                        else DEFAULT::hl (i + 1) DEFAULT (is_separator chr)
+            end
+    in row.hl <- hl 0 DEFAULT true;;
 
 (* Apply syntax highlighting to a given lign. Takes hltype of 
     last char of previous line. *)

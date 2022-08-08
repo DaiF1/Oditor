@@ -50,7 +50,7 @@ let start_word i =
             if chr = ' ' then n + 1
             else next (i + 1) (n + 1)
         else n
-    in term.x <- next i 0;;
+    in term.x <- term.x + next i 0;;
 
 (* Move to end of next word. Goto the end of the line if no word found *)
 let end_word i =
@@ -60,7 +60,7 @@ let end_word i =
             if chr = ' ' && n <> 1 then n - 1
             else next (i + 1) (n + 1)
         else n
-    in term.x <- next i 0;;
+    in term.x <- term.x + next i 0;;
 
 (* Move cursor on screen based on key pressed *)
 let move_cursor key = 

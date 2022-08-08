@@ -62,6 +62,16 @@ let end_word i =
         else n
     in term.x <- term.x + next i 0;;
 
+(* Move to start of previous word. Goto start of the line if no word found *)
+let back_word i =
+    let row = get_line term.y in
+    let rec next i n = if i > 0 then
+            let chr = row.chars.[i - 1] in
+            if chr = ' ' && n <> 0 then n
+            else next (i - 1) (n + 1)
+        else n + 1
+    in term.x <- term.x - next i 0;;
+
 (* Move cursor on screen based on key pressed *)
 let move_cursor key = 
     let process () = match key with
@@ -71,6 +81,7 @@ let move_cursor key =
         | 'j' -> move_cy 1
         | 'w' -> start_word term.x
         | 'e' -> end_word term.x
+        | 'b' -> back_word term.x
         | _ -> ()
     in toggle_cursor true; process (); 
         let linelen = (get_line (term.y + term.rowoff)).size in

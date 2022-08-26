@@ -5,15 +5,26 @@ A simple text editor written in OCaml
 
 ## Text editing
 
-Oditor is a text editor written with Vim keybindings.
+Oditor is a text editor for OCaml. It provides syntax highlighting for `.ml`
+files and uses Vim key bindings.
 
 ### Normal mode 
 
-You can move around using HJKL, enter insert mode by pressing I and command mode
-by pressing ':'.
+You can move around using 'h', 'j', 'k', 'l' or using the 'e', 'w' and 'b' 
+motions.
 
 The text will automatically scroll up or down by moving the cursor out of the
 screen.
+
+You can enter Insert mode by pressing:
+
+- 'i' to insert on current character
+
+- 'a' to insert on next character
+
+- 'I' to insert at the start of the line
+
+- 'A' to insert at the end of the line
 
 ### Insert mode
 
@@ -33,11 +44,7 @@ Command mode supports different operations:
 
 - 'wq' which saves the file and quits Oditor.
 
-## Syntax Highlighting
-
-Oditor is an editor for OCaml, so it will only suppport this language.
-
-Syntax Highlighting is still a WIP.
+You can use 'Ctrl+W' to empty the command buffer.
 
 ## Coming soon
 

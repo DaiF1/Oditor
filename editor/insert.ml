@@ -15,6 +15,14 @@ let insert_char row c i =
     row.size <- row.size + 1; term.x <- term.x + 1;
     update_hl ();;
 
+(* Insert string in row at given position *)
+let insert_string row s len i =
+    term.changed <- true;
+    row.chars <- String.sub row.chars 0 i ^ s ^
+        String.sub row.chars i (row.size - i);
+    row.size <- row.size + len; term.x <- term.x + len;
+    update_hl ();;
+
 (* Insert new row in text at given position *)
 let insert_row i = 
     term.changed <- true;

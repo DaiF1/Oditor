@@ -199,6 +199,7 @@ let process_key () =
                             else delete_row term.y; true
                     | '\r' -> term.y <- term.y + 1;
                             insert_row term.y; true
+                    | '\t' -> insert_string (get_line term.y) "    " 4 term.x; true
                     | c -> insert_char (get_line term.y) c term.x; true
             end
 

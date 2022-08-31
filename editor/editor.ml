@@ -22,7 +22,7 @@ type hltype =
 type erow = {
     mutable size : int;         (* Size of the row *)
     mutable chars : string;     (* Line content *)
-    mutable hl : hltype list   (* Row syntax color *)
+    mutable hl : hltype list    (* Row syntax color *)
 };;
 
 (* Editor mode *)
@@ -31,6 +31,9 @@ type emode =
     | COMMAND
     | INSERT;;
 
+(* Return string representating of editor mode. Used to display current mode
+    in status bar.
+    param mode: editor mode to convert *)
 let string_of_mode mode = match mode with
     | NORMAL -> "NORMAL"
     | COMMAND -> "COMMAND"
@@ -85,7 +88,7 @@ let term =
 
 (*** Terminal setup ***)
 
-(* Load current term size *)
+(* Load current term size to global editor *)
 let load_term_size () = 
     let (r, c) = (Terminal_size.get_rows (), Terminal_size.get_columns ()) in
     term.rows <- (int_of_intop r); term.cols <- (int_of_intop c);;

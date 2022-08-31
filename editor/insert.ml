@@ -7,7 +7,10 @@
 open Editor;;
 open Colors;;
 
-(* Insert char in row at given position *)
+(* Insert char in row at given position 
+    param row: row to be modified
+    param c: char to insert 
+    param i: position of inserted char *)
 let insert_char row c i =
     term.changed <- true;
     row.chars <- String.sub row.chars 0 i ^ Char.escaped c ^
@@ -15,7 +18,11 @@ let insert_char row c i =
     row.size <- row.size + 1; term.x <- term.x + 1;
     update_hl ();;
 
-(* Insert string in row at given position *)
+(* Insert string in row at given position 
+    param row: row to be modified
+    param s: string to insert
+    param len: length of inserted string
+    param i: starting position of inserted string *)
 let insert_string row s len i =
     term.changed <- true;
     row.chars <- String.sub row.chars 0 i ^ s ^
@@ -23,7 +30,8 @@ let insert_string row s len i =
     row.size <- row.size + len; term.x <- term.x + len;
     update_hl ();;
 
-(* Insert new row in text at given position *)
+(* Insert new row in text at given position
+    param i: position of new row in text. must be > 0*)
 let insert_row i = 
     term.changed <- true;
     let rec loop text i prev = match text with
@@ -38,7 +46,9 @@ let insert_row i =
     in term.text <- loop term.text i {size = 0; chars = ""; hl = []};
         term.numlines <- term.numlines + 1; update_hl ();;
 
-(* Delete char in row at given position *)
+(* Delete char in row at given position. Row must not be empty.
+    param row: row to delete from
+    param i: position of char to delete*)
 let delete_char row i =
     term.changed <- true;
     row.chars <- String.sub row.chars 0 (i - 1) ^ 
@@ -47,7 +57,8 @@ let delete_char row i =
     term.x <- term.x - 1;
     update_hl ();;
 
-(* Delete row in text at given position *)
+(* Delete row in text at given position
+    param i: position of row to delete. must be > 0*)
 let delete_row i =
     term.changed <- true;
     let rec loop text i = match text with

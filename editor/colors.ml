@@ -6,7 +6,8 @@
 
 open Editor;;
 
-(* Convert hltype to escape code *)
+(* Convert hltype to escape code
+    param code: hltype to convert *)
 let hl_to_esc code = match code with
     | DEFAULT -> "\x1b[0m"
     | DIGIT -> "\x1b[34m"
@@ -40,11 +41,16 @@ let is_digit c = let code = Char.code c - Char.code '0'
 (* Return true if char is separator *)
 let is_separator c = String.contains_from ",.()+-/*=~%<>[]; \000" 0 c;;
 
-(* Update row syntax highlighting *)
+(* Update row syntax highlighting 
+    param row: erow to process
+    param prev: last hltype of previous row
+    return: last hltype of the row *)
 let update_hl_row row prev =
+    (* build hl list of length 'len' and filled with 'key' elements *)
     let rec build_key_hl len key =
         if len = 0 then []
         else key::build_key_hl (len - 1) key
+    (* Check if keyword 'keys' is in row starting from 'i' position *)
     in let rec check_kw keys i = match keys with
         | [] -> 0
         | e::_ when e.[0] > row.chars.[i] -> 0
@@ -58,22 +64,28 @@ let update_hl_row row prev =
                             else check_kw l i 
                         else check_kw l i 
                     else check_kw l i 
+    (* Build hl list with 'i' current index, 'prev_hl' hltype of prev char,
+        'prev_sep' if prev char was a separator.
+        Returns a tuple with the list and the last 'prev_hl' *)
     in let rec hl i prev_hl prev_sep = match i with
         | i when i = row.size -> ([], prev_hl)
         | i -> let chr = row.chars.[i] in begin
             match chr with
+                (* Process digit *)
                 | chr when is_digit chr && (prev_sep || prev_hl = DIGIT) -> 
                         let (h, prev) = hl (i + 1) DIGIT false in
                             (DIGIT::h, prev)
                 | '.' when prev_hl = DIGIT && not prev_sep ->
                         let (h, prev) = hl (i + 1) DIGIT true in
                             (DIGIT::h, prev)
+                (* Process strings *)
                 | '"' when prev_hl = STRING || prev_hl = DEFAULT ->
                         if prev_hl = STRING then
                             let (h, prev) = hl (i + 1) DEFAULT false in
                                 (STRING::h, prev)
                         else let (h, prev) = hl (i + 1) STRING false in
                             (STRING::h, prev)
+                (* Process comments *)
                 | '(' when prev_hl <> STRING ->
                         if i + 1 < row.size && row.chars.[i + 1] = '*' then
                             let (h, prev) = hl (i + 2) COMMENT false in
@@ -86,6 +98,7 @@ let update_hl_row row prev =
                             (COMMENT::COMMENT::h, prev)
                         else let (h, prev) = hl (i + 1) COMMENT false in
                             (COMMENT::h, prev)
+                (* Process other chars *)
                 | chr -> 
                         if prev_hl = STRING then
                             let (h, prev) = hl (i + 1) STRING false in 
@@ -117,8 +130,9 @@ let update_hl () =
         | e::l -> update l (update_hl_row e prev)
     in update term.text DEFAULT;;
 
-(* Apply syntax highlighting to a given lign. Takes hltype of 
-    last char of previous line. *)
+(* Apply syntax highlighting to a given lign.
+    param row: erow to process
+    param prev: last hltype of previous row *)
 let hl_row row prev =
     if row.size = 0 then row.chars
     else 
@@ -130,7 +144,7 @@ let hl_row row prev =
             else Char.escaped row.chars.[i] ^ process_string hl (i + 1) e 
     in process_string row.hl 0 prev ^ hl_to_esc DEFAULT;;
 
-(* Cut syntax list into 2 sublists. 
+(* Cut syntax list into 2 sublists.
     Returns a tuple with objects strictly before index and after *)
 let rec cut_syntax i l = match l with
     | [] -> ([], [])

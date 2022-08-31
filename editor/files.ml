@@ -7,14 +7,17 @@
 open Editor;;
 open Colors;;
 
-(* Add line to text buffer *)
+(* Add line to text buffer
+    param str: line to add
+    param len: length of line *)
 let add_line str len = 
     let rec loop text = match text with
         | [] -> let row = {chars = str; size = len; hl = []} in [row]
         | l::t -> l::loop t
     in term.text <- loop term.text;;
 
-(* Get line at given position *)
+(* Get line at given position 
+    param i: line index *)
 let get_line i =
     let rec loop text i = match text with
         | [] -> {size = 0; chars = ""; hl = []}
@@ -22,7 +25,8 @@ let get_line i =
         | _::l -> loop l (i - 1)
     in loop term.text i;;
 
-(* Open file in editor *)
+(* Open file in editor 
+    param path: path to file (string) *)
 let open_file path =
     let ic = try Some (open_in path) with Sys_error _ -> None in
     match ic with
@@ -39,12 +43,14 @@ let open_file path =
     end; update_hl ();;
 
 
-(* Convert text buffer to string *)
+(* Convert text buffer to string 
+    param text: erow to convert *)
 let rec buff_to_string text = match text with
     | [] -> ""
     | e::l -> e.chars ^ "\n" ^ buff_to_string l;;
 
-(* Write buffer to file *)
+(* Write buffer to file
+    param path: path to file *)
 let write_file path =
     term.filename <- path;
     term.changed <- false;

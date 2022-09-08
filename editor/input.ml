@@ -134,6 +134,18 @@ let read_command () =
                             | file::_ -> open_file file;
                                 term.mode <- NORMAL; true
                     end
+                | "dune" ->
+                    begin
+                        match args with
+                            | [] -> term.help <- "Missing argument"; true
+                            | arg::_ when arg = "runtest" -> 
+                        let _ = Sys.command "dune clean" and
+                        _ = Sys.command "dune runtest --no-buffer > test_results"
+                        in open_tests ();
+                        term.help <- "Press 'q' to exit"; term.mode <- BASH;
+                        true
+                            | _::_ -> term.help <- "Unknown argument"; true
+                    end
                 | c -> term.mode <- NORMAL;
                     term.help <- c ^ ": unknown command"; true
             in term.command <- ""; result;;
@@ -202,4 +214,11 @@ let process_key () =
                     | '\t' -> insert_string (get_line term.y) "    " 4 term.x; true
                     | c -> insert_char (get_line term.y) c term.x; true
             end
+        | BASH ->
+                begin
+                    match read_key () with
+                        | 'q' -> open_file term.filename; 
+                            term.help <- ""; term.mode <- NORMAL; true
+                        | _ -> true
+                end
 

@@ -29,7 +29,8 @@ type erow = {
 type emode =
     | NORMAL
     | COMMAND
-    | INSERT;;
+    | INSERT
+    | BASH;;
 
 (* Return string representating of editor mode. Used to display current mode
     in status bar.
@@ -37,7 +38,8 @@ type emode =
 let string_of_mode mode = match mode with
     | NORMAL -> "NORMAL"
     | COMMAND -> "COMMAND"
-    | INSERT -> "INSERT";;
+    | INSERT -> "INSERT"
+    | BASH -> "BASH";;
 
 (* Terminal definition *)
 type termio = {

@@ -3,6 +3,8 @@ A simple text editor written in OCaml
 
 ![demo](img/demo.gif)
 
+/!\ **This version is only for demonstration purposes**
+
 ## Text editing
 
 Oditor is a text editor for OCaml. It provides syntax highlighting for `.ml`

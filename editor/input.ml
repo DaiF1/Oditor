@@ -217,8 +217,10 @@ let process_key () =
         | BASH ->
                 begin
                     match read_key () with
-                        | 'q' -> open_file term.filename; 
-                            term.help <- ""; term.mode <- NORMAL; true
+                        | 'q' -> term.mode <- NORMAL; 
+                            open_file term.filename; 
+                            term.help <- "";
+                            let _ = Sys.command "rm test_results" in true
                         | _ -> true
                 end
 

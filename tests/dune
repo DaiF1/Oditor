@@ -1,0 +1,5 @@
+(test
+   (name run_tests)
+   (modules run_tests)
+   (libraries alcotest)
+   (action (run %{test} --color=always)))

@@ -41,17 +41,18 @@ let is_digit c = let code = Char.code c - Char.code '0'
 (* Return true if char is separator *)
 let is_separator c = String.contains_from ",.()+-/*=~%<>[]; \000" 0 c;;
 
+(* build hl list of length 'len' and filled with 'key' elements *)
+let rec build_key_hl len key =
+    if len = 0 then []
+    else key::build_key_hl (len - 1) key;;
+
 (* Update row syntax highlighting 
     param row: erow to process
     param prev: last hltype of previous row
     return: last hltype of the row *)
-let update_hl_row row prev =
-    (* build hl list of length 'len' and filled with 'key' elements *)
-    let rec build_key_hl len key =
-        if len = 0 then []
-        else key::build_key_hl (len - 1) key
+let update_hl_row row prev = 
     (* Check if keyword 'keys' is in row starting from 'i' position *)
-    in let rec check_kw keys i = match keys with
+    let rec check_kw keys i = match keys with
         | [] -> 0
         | e::_ when e.[0] > row.chars.[i] -> 0
         | e::l -> if e.[0] <> row.chars.[i] then check_kw l i
@@ -127,7 +128,10 @@ let update_hl_row row prev =
 let update_hl () =
     let rec update text prev = match text with
         | [] -> ()
-        | e::l -> update l (update_hl_row e prev)
+        | e::l -> if term.mode = BASH then
+            (e.hl <- build_key_hl e.size DEFAULT;
+            update l DEFAULT)
+            else update l (update_hl_row e prev)
     in update term.text DEFAULT;;
 
 (* Apply syntax highlighting to a given lign.

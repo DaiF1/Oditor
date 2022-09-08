@@ -179,6 +179,11 @@ let process_key () =
                     | 'A' -> term.x <- (get_line term.y).size; 
                         term.mode <- INSERT;
                         if term.text = [] then insert_row 0; true
+                    | c when c = ctrl 'b' -> term.mode <- BASH;
+                        let _ = Sys.command (Printf.sprintf 
+                        "echo '%s' | ocaml -noprompt -color=never > test_results" 
+                            (buff_to_string term.text)) in
+                        open_tests (); term.help <- "Press 'q' to exit"; true
                     | c -> term.help <- ""; move_cursor c; true
             end
         | COMMAND -> 

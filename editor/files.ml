@@ -25,6 +25,17 @@ let get_line i =
         | _::l -> loop l (i - 1)
     in loop term.text i;;
 
+(* Replace escape codes by hex value *)
+let rep_esc text =
+    let rec loop i = match i with
+        | -1 -> ""
+        | i -> let c = text.[i] in
+            if c = '\027' then loop (i - 1) ^ "\x1b"
+            else loop (i - 1) ^ Char.escaped c
+    in
+    let len = String.length text in
+    loop (len - 1);;
+
 (* Open file in editor 
     param path: path to file (string) *)
 let open_file path =
@@ -38,9 +49,17 @@ let open_file path =
             in
             let rec loop () = match read () with
                 | None -> close_in ic; 0
-                | Some s -> add_line s (String.length s); loop () + 1
+                | Some s -> let s = rep_esc s in
+                add_line s (String.length s); loop () + 1
             in term.numlines <- loop ()
     end; update_hl ();;
+
+
+(* Open test result file *)
+let open_tests () =
+    let prev_path = term.filename in
+    open_file "test_results";
+    term.filename <- prev_path;;
 
 
 (* Convert text buffer to string 

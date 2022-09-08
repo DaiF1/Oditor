@@ -141,8 +141,8 @@ let read_command () =
                             | arg::_ when arg = "runtest" -> 
                         let _ = Sys.command "dune clean" and
                         _ = Sys.command "dune runtest --no-buffer > test_results"
-                        in open_tests ();
-                        term.help <- "Press 'q' to exit"; term.mode <- BASH;
+                        in term.mode <- BASH; open_tests ();
+                        term.help <- "Press 'q' to exit";
                         true
                             | _::_ -> term.help <- "Unknown argument"; true
                     end

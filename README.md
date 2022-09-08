@@ -6,9 +6,9 @@ A simple text editor written in OCaml
 ## Who to run ?
 
 Easy,
-    - clone the repo
-    - `cd Oditor`
-    - `dune exec ./oditor.exe`
+- clone the repo
+- `cd Oditor`
+- `dune exec ./oditor.exe`
 
 ## Text editing
 

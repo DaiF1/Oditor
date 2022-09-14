@@ -139,9 +139,9 @@ let hl_row row prev =
     let rec process_string hl i prev = match hl with
         | [] -> ""
         | e::hl -> if e <> prev then 
-                    hl_to_esc e ^ Char.escaped row.chars.[i] ^ 
+                    hl_to_esc e ^ String.make 1 row.chars.[i] ^ 
                     process_string hl (i + 1) e  
-            else Char.escaped row.chars.[i] ^ process_string hl (i + 1) e 
+            else String.make 1 row.chars.[i] ^ process_string hl (i + 1) e 
     in process_string row.hl 0 prev ^ hl_to_esc DEFAULT;;
 
 (* Cut syntax list into 2 sublists.

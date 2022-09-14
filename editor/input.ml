@@ -184,7 +184,7 @@ let process_key () =
                                 (term.mode <- NORMAL; term.command <- ""); 
                             true
                     | '\r' -> read_command ()
-                    | c -> term.command <- term.command ^ Char.escaped c; true
+                    | c -> term.command <- term.command ^ String.make 1 c; true
             end
         | INSERT ->
             begin

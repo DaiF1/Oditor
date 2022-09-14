@@ -13,7 +13,7 @@ open Colors;;
     param i: position of inserted char *)
 let insert_char row c i =
     term.changed <- true;
-    row.chars <- String.sub row.chars 0 i ^ Char.escaped c ^
+    row.chars <- String.sub row.chars 0 i ^ String.make 1 c ^
         String.sub row.chars i (row.size - i);
     row.size <- row.size + 1; term.x <- term.x + 1;
     update_hl ();;

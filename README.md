@@ -3,6 +3,13 @@ A simple text editor written in OCaml
 
 ![demo](img/demo.gif)
 
+## How to run the program ?
+
+Easy,
+- clone the repo
+- `cd Oditor`
+- `dune exec ./oditor.exe`
+
 ## Text editing
 
 Oditor is a text editor for OCaml. It provides syntax highlighting for `.ml`

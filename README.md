@@ -3,7 +3,7 @@ A simple text editor written in OCaml
 
 ![demo](img/demo.gif)
 
-## Who to run ?
+## How to run the program ?
 
 Easy,
 - clone the repo

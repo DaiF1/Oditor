@@ -6,7 +6,7 @@
 (*** Types and global variables ***)
 
 (* Oditor version *)
-let version = "0.0.1"
+let version = "1.0.0"
 
 (* Highlight type definition *)
 type hltype =

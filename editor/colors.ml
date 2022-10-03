@@ -87,7 +87,7 @@ let update_hl_row row prev =
                             (STRING::h, prev)
                 (* Process chars *)
                 | '\'' when prev_hl = DEFAULT ->
-                        if row.chars.[i + 2] = '\'' then
+                        if i + 2 < row.size && row.chars.[i + 2] = '\'' then
                             let (h, prev) = hl (i + 3) CHAR true in
                                 (CHAR::CHAR::CHAR::h, prev)
                         else let (h, prev) = hl (i + 1) DEFAULT true in

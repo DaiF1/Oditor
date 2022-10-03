@@ -85,6 +85,13 @@ let update_hl_row row prev =
                                 (STRING::h, prev)
                         else let (h, prev) = hl (i + 1) STRING false in
                             (STRING::h, prev)
+                (* Process chars *)
+                | '\'' when prev_hl = DEFAULT ->
+                        if i + 2 < row.size && row.chars.[i + 2] = '\'' then
+                            let (h, prev) = hl (i + 3) CHAR true in
+                                (CHAR::CHAR::CHAR::h, prev)
+                        else let (h, prev) = hl (i + 1) DEFAULT true in
+                                (DEFAULT::h, prev)
                 (* Process comments *)
                 | '(' when prev_hl <> STRING ->
                         if i + 1 < row.size && row.chars.[i + 1] = '*' then

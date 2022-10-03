@@ -1,15 +1,18 @@
-FROM debian:9
+FROM debian:latest
 RUN apt-get update -yq \
-&& apt-get install opam -yq \
-&& opam init \
-&& opam switch create 4.11.1 \
-&& eval 'opam config env'
+&& apt-get install opam -yq
+
+RUN opam init --disable-sandboxing --yes \
+&& opam switch create ocaml-system.4.11.1 \
+&& eval $(opam env)
+
+RUN opam install dune terminal_size \
+&& eval $(opam env)
 
 ADD . /app/
 WORKDIR /app
-RUN which ocaml
 
 EXPOSE 2368
 VOLUME /app/logs
 
-CMD dune exec ./oditor.exe
+CMD eval $(opam env) && dune exec ./oditor.exe

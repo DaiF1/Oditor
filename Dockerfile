@@ -12,7 +12,4 @@ RUN opam install dune terminal_size \
 ADD . /app/
 WORKDIR /app
 
-EXPOSE 2368
-VOLUME /app/logs
-
 CMD eval $(opam env) && dune exec ./oditor.exe

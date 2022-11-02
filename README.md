@@ -7,8 +7,8 @@ A simple text editor written in OCaml
 
 Easy,
 - clone the repo
-- build with ```docker build -t oditor .```
-- run with ```docker run -a stdin -a stdout -it oditor```
+- build with `make build`
+- run with `make run`
 
 ## Text editing
 

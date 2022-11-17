@@ -22,3 +22,6 @@ build:
 run:
 	docker run -a stdin -a stdout -v ${DIR}:/app/ \
 		-it oditor
+
+clean:
+	docker container rm $(shell docker ps -qa)

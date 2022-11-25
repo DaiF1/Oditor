@@ -198,8 +198,10 @@ let process_key () =
                                 delete_char row (term.x + term.colsoff)
                             else delete_row (term.y + term.rowoff); true
                     | '\r' -> term.y <- term.y + 1;
-                            insert_row term.y; true
-                    | '\t' -> insert_string (get_line term.y) "    " 4 term.x; true
-                    | c -> insert_char (get_line term.y) c (term.x + term.rowoff); true
+                            insert_row (term.y + term.rowoff); true
+                    | '\t' -> insert_string (get_line (term.y + term.rowoff)) 
+                            "    " 4 (term.x + term.colsoff); true
+                    | c -> insert_char (get_line (term.y + term.rowoff)) c 
+                            (term.x + term.colsoff); true
             end
 

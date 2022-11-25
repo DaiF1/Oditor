@@ -44,7 +44,7 @@ let move_cy y =
 
 (* Move to start of next word. Goto the end of the line if no word found *)
 let start_word i =
-    let row = get_line term.y in
+    let row = get_line (term.y + term.rowoff) in
     let rec next i n = if i < row.size then
             let chr = row.chars.[i] in
             if chr = ' ' then n + 1
@@ -54,7 +54,7 @@ let start_word i =
 
 (* Move to end of next word. Goto the end of the line if no word found *)
 let end_word i =
-    let row = get_line term.y in
+    let row = get_line (term.y + term.rowoff) in
     let rec next i n = if i < row.size then
             let chr = row.chars.[i] in
             if chr = ' ' && n <> 1 then n - 1
@@ -64,7 +64,7 @@ let end_word i =
 
 (* Move to start of previous word. Goto start of the line if no word found *)
 let back_word i =
-    let row = get_line term.y in
+    let row = get_line (term.y + term.rowoff) in
     let rec next i n = if i > 0 then
             let chr = row.chars.[i - 1] in
             if chr = ' ' && n <> 0 then n

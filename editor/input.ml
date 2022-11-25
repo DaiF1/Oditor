@@ -120,13 +120,19 @@ let read_command () =
                 | "wq" -> begin
                         match args with
                             | [] when term.filename = "" -> term.mode <- NORMAL;
-                                term.help <- "No file name"; false
+                                term.help <- "No file name"; true
                             | [] -> term.mode <- NORMAL; 
                                 write_file term.filename; false
                             | file::_ -> term.mode <- NORMAL;
                                 write_file file; false
                         end
                 | "edit" ->
+                    if term.changed then
+                    begin
+                        term.help <- "Unsaved changes. Use 'edit!' to override";
+                        term.mode <- NORMAL;
+                        true
+                    end else
                     begin
                         match args with
                             | [] -> term.mode <- NORMAL;

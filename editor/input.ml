@@ -140,6 +140,15 @@ let read_command () =
                             | file::_ -> open_file file;
                                 term.mode <- NORMAL; true
                     end
+                | "edit!" ->
+                    begin
+                        match args with
+                            | [] -> term.mode <- NORMAL;
+                                    term.help <- "No file given"; true
+                            | file::_ -> open_file file;
+                                term.mode <- NORMAL; true
+                    end
+
                 | c -> term.mode <- NORMAL;
                     term.help <- c ^ ": unknown command"; true
             in term.command <- ""; result;;

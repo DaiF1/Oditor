@@ -194,12 +194,12 @@ let process_key () =
                             if seq1 = '\000' then term.mode <- NORMAL; true
                     | '\127' ->
                             if term.x <> 0 then 
-                                let row = get_line term.y in
-                                delete_char row term.x
-                            else delete_row term.y; true
+                                let row = get_line (term.y + term.rowoff) in
+                                delete_char row (term.x + term.colsoff)
+                            else delete_row (term.y + term.rowoff); true
                     | '\r' -> term.y <- term.y + 1;
                             insert_row term.y; true
                     | '\t' -> insert_string (get_line term.y) "    " 4 term.x; true
-                    | c -> insert_char (get_line term.y) c term.x; true
+                    | c -> insert_char (get_line term.y) c (term.x + term.rowoff); true
             end
 

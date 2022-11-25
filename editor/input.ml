@@ -117,7 +117,7 @@ let read_command () =
                             | file::_ -> term.mode <- NORMAL;
                                 write_file file; true
                         end
-                | "wq" -> begin
+                | "wq" | "x" -> begin
                         match args with
                             | [] when term.filename = "" -> term.mode <- NORMAL;
                                 term.help <- "No file name given."; true

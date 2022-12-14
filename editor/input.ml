@@ -44,7 +44,7 @@ let move_cy y =
 
 (* Move to start of next word. Goto the end of the line if no word found *)
 let start_word i =
-    let row = get_line term.y in
+    let row = get_line (term.y + term.rowoff) in
     let rec next i n = if i < row.size then
             let chr = row.chars.[i] in
             if chr = ' ' then n + 1
@@ -54,22 +54,24 @@ let start_word i =
 
 (* Move to end of next word. Goto the end of the line if no word found *)
 let end_word i =
-    let row = get_line term.y in
+    let row = get_line (term.y + term.rowoff) in
     let rec next i n = if i < row.size then
             let chr = row.chars.[i] in
-            if chr = ' ' && n <> 1 then n - 1
+            if chr = ' ' then
+                if n > 1 then n - 1
+                else n + 1
             else next (i + 1) (n + 1)
         else n
     in term.x <- term.x + next i 0;;
 
 (* Move to start of previous word. Goto start of the line if no word found *)
 let back_word i =
-    let row = get_line term.y in
+    let row = get_line (term.y + term.rowoff) in
     let rec next i n = if i > 0 then
             let chr = row.chars.[i - 1] in
             if chr = ' ' && n <> 0 then n
             else next (i - 1) (n + 1)
-        else n + 1
+        else n
     in term.x <- term.x - next i 0;;
 
 (* Move cursor on screen based on key pressed *)
@@ -194,12 +196,14 @@ let process_key () =
                             if seq1 = '\000' then term.mode <- NORMAL; true
                     | '\127' ->
                             if term.x <> 0 then 
-                                let row = get_line term.y in
-                                delete_char row term.x
-                            else delete_row term.y; true
+                                let row = get_line (term.y + term.rowoff) in
+                                delete_char row (term.x + term.colsoff)
+                            else delete_row (term.y + term.rowoff); true
                     | '\r' -> term.y <- term.y + 1;
-                            insert_row term.y; true
-                    | '\t' -> insert_string (get_line term.y) "    " 4 term.x; true
-                    | c -> insert_char (get_line term.y) c term.x; true
+                            insert_row (term.y + term.rowoff); true
+                    | '\t' -> insert_string (get_line (term.y + term.rowoff)) 
+                            "    " 4 (term.x + term.colsoff); true
+                    | c -> insert_char (get_line (term.y + term.rowoff)) c 
+                            (term.x + term.colsoff); true
             end
 

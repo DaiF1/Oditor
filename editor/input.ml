@@ -57,7 +57,9 @@ let end_word i =
     let row = get_line (term.y + term.rowoff) in
     let rec next i n = if i < row.size then
             let chr = row.chars.[i] in
-            if chr = ' ' && n <> 1 then n - 1
+            if chr = ' ' then
+                if n > 1 then n - 1
+                else n + 1
             else next (i + 1) (n + 1)
         else n
     in term.x <- term.x + next i 0;;
@@ -69,7 +71,7 @@ let back_word i =
             let chr = row.chars.[i - 1] in
             if chr = ' ' && n <> 0 then n
             else next (i - 1) (n + 1)
-        else n + 1
+        else n
     in term.x <- term.x - next i 0;;
 
 (* Move cursor on screen based on key pressed *)

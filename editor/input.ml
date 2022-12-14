@@ -104,7 +104,7 @@ let read_command () =
             let result = match c with
                 | "q" -> if term.changed then 
                         begin
-                            term.help <- "Unsaved changes. Use 'q!' to override";
+                            term.help <- "Unsaved changes. Use 'q!' to override.";
                             term.mode <- NORMAL;
                             true
                         end
@@ -113,22 +113,28 @@ let read_command () =
                 | "w" -> begin
                         match args with
                             | [] when term.filename = "" -> term.mode <- NORMAL;
-                                term.help <- "No file name"; true
+                                term.help <- "No file name given."; true
                             | [] -> term.mode <- NORMAL; 
                                 write_file term.filename; true
                             | file::_ -> term.mode <- NORMAL;
                                 write_file file; true
                         end
-                | "wq" -> begin
+                | "wq" | "x" -> begin
                         match args with
                             | [] when term.filename = "" -> term.mode <- NORMAL;
-                                term.help <- "No file name"; false
+                                term.help <- "No file name given."; true
                             | [] -> term.mode <- NORMAL; 
                                 write_file term.filename; false
                             | file::_ -> term.mode <- NORMAL;
                                 write_file file; false
                         end
                 | "edit" ->
+                    if term.changed then
+                    begin
+                        term.help <- "Unsaved changes. Use 'edit!' to override.";
+                        term.mode <- NORMAL;
+                        true
+                    end else
                     begin
                         match args with
                             | [] -> term.mode <- NORMAL;
@@ -136,6 +142,15 @@ let read_command () =
                             | file::_ -> open_file file;
                                 term.mode <- NORMAL; true
                     end
+                | "edit!" ->
+                    begin
+                        match args with
+                            | [] -> term.mode <- NORMAL;
+                                    term.help <- "No file given"; true
+                            | file::_ -> open_file file;
+                                term.mode <- NORMAL; true
+                    end
+
                 | c -> term.mode <- NORMAL;
                     term.help <- c ^ ": unknown command"; true
             in term.command <- ""; result;;

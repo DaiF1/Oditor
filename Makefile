@@ -15,10 +15,7 @@ endif
 all: run
 
 build:
-	docker build -t oditor \
-		--build-arg UID=${UID} \
-		--build-arg GID=${GID} .
-
+	docker build -t oditor .
 run:
 	docker run -a stdin -a stdout -v ${DIR}:/app/ \
 		-it oditor

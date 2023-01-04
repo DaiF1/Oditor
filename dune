@@ -1,4 +1,4 @@
 (executable
   (name oditor)
   (modules oditor)
-  (libraries editor display input))
+  (libraries editor input display movement))

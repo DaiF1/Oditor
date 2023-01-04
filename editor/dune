@@ -9,6 +9,11 @@
   (libraries editor))
 
 (library
+  (name input)
+  (modules input)
+  (libraries editor))
+
+(library
   (name display)
   (modules display)
   (libraries editor colors))
@@ -24,8 +29,6 @@
   (libraries editor colors))
 
 (library
-  (name input)
-  (modules input)
-  (libraries editor display files insert))
-
-
+  (name movement)
+  (modules movement)
+  (libraries editor input display files insert))

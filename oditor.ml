@@ -6,6 +6,7 @@
 
 open Editor;;
 open Display;;
+open Movement;;
 open Input;;
 
 (* Main loop
@@ -16,4 +17,4 @@ let rec loop () =
     else (clear_screen (); exit_raw ());;
 
 (* Activate raw mode before starting main loop *)
-let () = enter_raw (); loop ();;
+let () = enter_raw (); setup_vimkeymaps (); loop ();;

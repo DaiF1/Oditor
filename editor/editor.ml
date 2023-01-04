@@ -57,6 +57,11 @@ type termio = {
     mutable command : string;   (* Command buffer *)
     mutable help : string;      (* Help text buffer *)
 
+    mutable controls : 
+        (char, emode -> bool) Hashtbl.t; (* Input list *)
+    mutable default_proc :
+        (char -> emode -> bool); (* Default input processing function *)
+
     io : Unix.terminal_io       (* Editor terminal io *)
 };;
 
@@ -82,6 +87,9 @@ let term =
         mode = NORMAL;
         command = "";
         help = "";
+
+        controls = Hashtbl.create 10;
+        default_proc = (fun _ _ -> true);
 
         io = Unix.tcgetattr Unix.stdin
     };;

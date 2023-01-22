@@ -1,11 +1,12 @@
 (*
     file: vim_keymaps.ml
-    dependencies: editor.ml input.ml display.ml insert.ml movement.ml
+    dependencies: editor.ml input.ml
     Bindings for vim like controls
 *)
 
 open Editor;;
 open Input;;
+open Files;;
 open Display;;
 open Insert;;
 open Movement;;

@@ -29,6 +29,6 @@
   (libraries editor colors))
 
 (library
-  (name movement)
-  (modules movement)
+  (name vim_keymaps)
+  (modules vim_keymaps)
   (libraries editor input display files insert))

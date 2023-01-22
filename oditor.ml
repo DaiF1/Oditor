@@ -6,7 +6,7 @@
 
 open Editor;;
 open Display;;
-open Movement;;
+open Vim_keymaps;;
 open Input;;
 
 (* Main loop

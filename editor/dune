@@ -36,4 +36,4 @@
 (library
   (name vim_keymaps)
   (modules vim_keymaps)
-  (libraries editor input display files insert movement))
+  (libraries editor input display insert movement))

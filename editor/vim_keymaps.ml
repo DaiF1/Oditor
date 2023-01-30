@@ -182,6 +182,7 @@ let process_char c mode = match mode with
             (term.x + term.colsoff); true;;
 
 let setup_vimkeymaps () =
+    term.mode <- NORMAL;
     add_key '\127' process_back;
     add_key '\x1b' process_esc;
     add_key '\r' process_return;

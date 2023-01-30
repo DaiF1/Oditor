@@ -136,8 +136,7 @@ let process_ctrl_q mode = match mode with
     | COMMAND -> true;;
 
 let process_ctrl_backquote mode = match mode with
-    | INSERT -> term.command <- ":";
-            term.mode <- COMMAND; term.help <- ""; true
+    | INSERT -> term.mode <- COMMAND; term.help <- ""; true
     | _ -> true;;
 
 let process_ctrl_o mode = match mode with

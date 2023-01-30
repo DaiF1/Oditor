@@ -1,7 +1,7 @@
 (*
     file: input.ml
     dependencies: editor.ml files.ml insert.ml
-    Process editor input
+    Utility for editor input management
 *)
 
 open Editor;;

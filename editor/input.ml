@@ -33,3 +33,17 @@ let process_key () =
             match func with
                 | None -> term.default_proc k term.mode
                 | Some f -> f term.mode;;
+
+(* Store a given keymap into the hashtbl
+    param name: keymap name
+    param setup_fun: keymap setup function. Must be unit -> unit *)
+let store_keymap name setup_fun =
+    Hashtbl.add term.keymaps name setup_fun;;
+
+(* Load a given keymap
+    param name: keymap name *)
+let load_keymap name =
+    let func = Hashtbl.find_opt term.keymaps name in
+    match func with
+        | None -> term.help <- "Unable to load keymap"
+        | Some f -> f ();;

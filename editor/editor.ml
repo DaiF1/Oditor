@@ -62,6 +62,9 @@ type termio = {
     mutable default_proc :
         (char -> emode -> bool); (* Default input processing function *)
 
+    mutable keymaps :
+        (string, unit -> unit) Hashtbl.t;           (* Keymap loading functions list *)
+
     io : Unix.terminal_io       (* Editor terminal io *)
 };;
 
@@ -90,6 +93,8 @@ let term =
 
         controls = Hashtbl.create 10;
         default_proc = (fun _ _ -> true);
+
+        keymaps = Hashtbl.create 2;
 
         io = Unix.tcgetattr Unix.stdin
     };;

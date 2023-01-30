@@ -6,8 +6,13 @@
 
 open Editor;;
 open Display;;
-open Default_keymaps;;
 open Input;;
+open Default_keymaps;;
+open Vim_keymaps;;
+
+(* Keymap setup *)
+store_keymap "default" setup_defaultkeymaps;;
+store_keymap "vim" setup_vimkeymaps;;
 
 (* Main loop
     Refresh screen and process keys. If process returns false, exit editor *)
@@ -17,4 +22,4 @@ let rec loop () =
     else (clear_screen (); exit_raw ());;
 
 (* Activate raw mode before starting main loop *)
-let () = enter_raw (); setup_defaultkeymaps (); loop ();;
+let () = enter_raw (); load_keymap "default"; loop ();;

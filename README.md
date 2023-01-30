@@ -22,12 +22,19 @@ files and uses Vim key bindings.
 
  To quit the editor, press `ctrl+q`.
 
- To enter command mode, press `ctrl+t`.
+ To run a command, press `ctrl+r` and type your command. To see the availables
+ commands, check out the **Commands** section.
 
 ### File Manipulation
 
 You can save your file using `ctrl+s` or `ctrl+maj+s` to save to another file.
 You can open a new file using `ctrl+o`
+
+## Commands
+
+Here are the currently supported commands:
+
+- "setkmap", change the current keymap.
 
 ## Vim Controls
 

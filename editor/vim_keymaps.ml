@@ -86,6 +86,11 @@ let read_command () =
                             | file::_ -> open_file file;
                                 term.mode <- NORMAL; true
                     end
+                | "setkmap" -> begin
+                    match args with
+                        | [] -> term.mode <- NORMAL; true
+                        | map::_ -> load_keymap map; true
+                    end
 
                 | c -> term.mode <- NORMAL;
                     term.help <- c ^ ": unknown command"; true

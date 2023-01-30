@@ -46,7 +46,7 @@ let read_command () =
     term.command <- "";
     match entries with
     | [] -> true
-    | cmd::_ ->
+    | cmd::args ->
             if fstatus.openfile then
             begin
                 fstatus.openfile <- false;
@@ -59,6 +59,12 @@ let read_command () =
                 term.mode <- INSERT;
                 term.filename <- cmd;
                 write_file cmd; true
+            end
+            else if cmd = "setkmap" then
+            begin
+                match args with
+                    | [] -> term.mode <- INSERT; true
+                    | map::_ -> load_keymap map; true
             end
             else (term.mode <- INSERT; true);;
 

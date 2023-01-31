@@ -6,7 +6,7 @@
 
 open Editor;;
 
-(* Return true if ctrl+k was pressed *)
+(* Return code for ctrl+k *)
 let ctrl key = Char.chr ((Char.code key) land 0x1f);;
 
 (* Read byte from stdin

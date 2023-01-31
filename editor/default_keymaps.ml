@@ -173,15 +173,6 @@ let process_ctrl_s mode = match mode with
                 end
     | _ -> true
 
-let process_ctrl_majs mode = match mode with
-    | INSERT -> begin
-            term.mode <- COMMAND;
-            fstatus.savefile <- true;
-            term.help <- "";
-            true
-        end
-    | _ -> true
-
 let process_ctrl_n mode = match mode with
     | NORMAL ->
             term.mode <- INSERT;
@@ -226,5 +217,4 @@ let setup_defaultkeymaps () =
     add_key (ctrl 'r') process_ctrl_backquote;
     add_key (ctrl 'o') process_ctrl_o;
     add_key (ctrl 's') process_ctrl_s;
-    add_key (ctrl 'S') process_ctrl_majs;
     set_default_proc process_char;;

@@ -28,7 +28,7 @@ files and uses Vim key bindings.
 #### File Manipulation
 
 To create a new file, you simply need to press `ctrl+n`.
-You can save this file using `ctrl+s` or `ctrl+maj+s` to save to another file.
+You can save this file using `ctrl+s`.
 You can also open a new file using `ctrl+o`
 
 ## Commands

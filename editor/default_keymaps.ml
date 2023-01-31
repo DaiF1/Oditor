@@ -57,10 +57,20 @@ let read_command () =
             end
             else if fstatus.savefile then
             begin
-                fstatus.savefile <- false;
                 term.mode <- INSERT;
-                term.filename <- cmd;
-                write_file cmd; true
+                if cmd = "" then
+                    if term.filename = "" then
+                        term.help <- "No name given"
+                    else begin
+                        fstatus.savefile <- false;
+                        write_file term.filename
+                end
+                else begin
+                    fstatus.savefile <- false;
+                    term.filename <- cmd;
+                    write_file cmd
+                end;
+                true
             end
             else if cmd = "setkmap" then
             begin
@@ -157,20 +167,10 @@ let process_ctrl_o mode = match mode with
     | _ -> true;;
 
 let process_ctrl_s mode = match mode with
-    | INSERT -> if term.filename = "" then
-                begin
-                    term.mode <- COMMAND;
+    | INSERT -> term.mode <- COMMAND;
                     fstatus.savefile <- true;
                     term.help <- "";
                     true
-                end
-                else 
-                begin
-                    fstatus.savefile <- true;
-                    term.help <- "";
-                    write_file term.filename;
-                    true
-                end
     | _ -> true
 
 let process_ctrl_n mode = match mode with

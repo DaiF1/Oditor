@@ -34,11 +34,13 @@ let move_cursor key =
 type file_status = {
     mutable openfile : bool;
     mutable savefile : bool;
+    mutable override : bool;
 };;
 
 let fstatus = {
     openfile = false;
     savefile = false;
+    override = false;
 };;
 
 let read_command () =
@@ -124,25 +126,24 @@ let process_tab mode = match mode with
 
 (* Ctrl inputs *)
 
-let process_ctrl_q mode = match mode with
-    | INSERT -> if term.changed then
-                begin
-                    term.help <- "Unsaved changes. Press again to exit anyways.";
-                    term.mode <- NORMAL;
-                    true
-                end
-                else false
-    | NORMAL-> false
-    | COMMAND -> true;;
+let process_ctrl_q _ = 
+    if term.changed && not fstatus.override then
+    begin
+        term.help <- "Unsaved changes. Press again to exit anyways.";
+        fstatus.override <- true;
+        true
+    end
+    else false
 
 let process_ctrl_backquote mode = match mode with
     | INSERT -> term.mode <- COMMAND; term.help <- ""; true
     | _ -> true;;
 
 let process_ctrl_o mode = match mode with
-    | INSERT -> if term.changed then
+    | INSERT -> if term.changed && not fstatus.override then
                 begin
-                    term.help <- "Unsaved changes. Save file before opening a new one";
+                    term.help <- "Unsaved changes. Press again to open anyways";
+                    fstatus.override <- true;
                     true
                 end
                 else 
@@ -150,6 +151,7 @@ let process_ctrl_o mode = match mode with
                     term.mode <- COMMAND;
                     fstatus.openfile <- true;
                     term.help <- "";
+                    fstatus.override <- false;
                     true
                 end
     | _ -> true;;
@@ -180,6 +182,31 @@ let process_ctrl_majs mode = match mode with
         end
     | _ -> true
 
+let process_ctrl_n mode = match mode with
+    | NORMAL ->
+            term.mode <- INSERT;
+            insert_row 1;
+            true
+    | _ -> if term.changed && not fstatus.override then
+        begin
+            term.help <- "Unsaved changes. Press again to override";
+            fstatus.override <- true;
+            true
+        end else
+        begin
+            term.mode <- INSERT;
+            term.help <- "";
+            term.x <- 0;
+            term.y <- 0;
+            term.text <- [];
+            term.numlines <- 0;
+            term.filename <- "";
+            clear_screen ();
+            insert_row 1;
+            fstatus.override <- false;
+            true
+        end;;
+
 (* Default input *)
 
 let process_char c mode = match mode with
@@ -189,13 +216,12 @@ let process_char c mode = match mode with
     | _ -> true;;
 
 let setup_defaultkeymaps () =
-    insert_row 0;
-    term.changed <- false;
-    term.mode <- INSERT;
+    term.mode <- if term.changed then INSERT else NORMAL;
     add_key '\127' process_back;
     add_key '\x1b' process_esc;
     add_key '\r' process_return;
     add_key '\t' process_tab;
+    add_key (ctrl 'n') process_ctrl_n;
     add_key (ctrl 'q') process_ctrl_q;
     add_key (ctrl 'r') process_ctrl_backquote;
     add_key (ctrl 'o') process_ctrl_o;

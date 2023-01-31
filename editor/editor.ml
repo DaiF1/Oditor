@@ -6,7 +6,7 @@
 (*** Types and global variables ***)
 
 (* Oditor version *)
-let version = "0.0.3"
+let version = "0.1.0"
 
 (* Highlight type definition *)
 type hltype =
@@ -41,6 +41,7 @@ let string_of_mode mode = match mode with
 
 (* Terminal definition *)
 type termio = {
+    (* Display info *)
     mutable rows : int;         (* Number of rows in terminal *) 
     mutable rowoff : int;       (* Current row offset *)
     mutable cols : int;         (* Number of columns in terminal *)
@@ -48,14 +49,24 @@ type termio = {
     mutable x : int;            (* Cursor x position *)
     mutable y : int;            (* Cursor y position *)
 
+    (* File info *)
     mutable filename : string;  (* Current file name *)
     mutable text : erow list;   (* Text buffer *)
     mutable numlines : int;     (* Number of lines in text buffer *)
     mutable changed : bool;     (* If changes were made to the file *)
 
+    (* Editor info *)
     mutable mode : emode;       (* Current Editor mode*)
     mutable command : string;   (* Command buffer *)
     mutable help : string;      (* Help text buffer *)
+
+    (* Controls info *)
+    mutable controls : 
+        (char, emode -> bool) Hashtbl.t; (* Input list *)
+    mutable default_proc :
+        (char -> emode -> bool); (* Default input processing function *)
+    mutable keymaps :
+        (string, unit -> unit) Hashtbl.t; (* Keymap loading functions list *)
 
     io : Unix.terminal_io       (* Editor terminal io *)
 };;
@@ -82,6 +93,11 @@ let term =
         mode = NORMAL;
         command = "";
         help = "";
+
+        controls = Hashtbl.create 10;
+        default_proc = (fun _ _ -> true);
+
+        keymaps = Hashtbl.create 2;
 
         io = Unix.tcgetattr Unix.stdin
     };;

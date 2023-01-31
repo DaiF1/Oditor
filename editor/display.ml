@@ -22,7 +22,7 @@ let draw_rows () =
     and status_bar =
         (* Cursor position in file (in %) *)
         let completion = if term.numlines = 0 then 100
-            else int_of_float (float_of_int term.y /. 
+            else int_of_float (float_of_int (term.y + term.rowoff) /. 
                 float_of_int (term.numlines - 1) *. 100.0) 
         (* Current file name *)
         in let file = if term.filename = "" then "[No Name]" else term.filename
@@ -30,7 +30,7 @@ let draw_rows () =
         in let status = 
             "\x1b[7m\x1b[1m " ^ string_of_mode term.mode ^ " \x1b[0m " ^ file
         (* Current lign and completion *)
-        and stats = "line " ^ string_of_int term.y ^ " (" ^
+        and stats = "line " ^ string_of_int (term.y + term.rowoff) ^ " (" ^
             string_of_int completion ^ "%)" in
         (* the '+11' is to nullify the escape codes for formatting text *)
         let offset = (term.cols - String.length status - String.length stats + 11)

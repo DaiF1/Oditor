@@ -14,12 +14,22 @@ open Vim_keymaps;;
 store_keymap "default" setup_defaultkeymaps;;
 store_keymap "vim" setup_vimkeymaps;;
 
+(* Exit oditor *)
+let exit () =
+    clear_screen ();
+    exit_raw ();
+
 (* Main loop
     Refresh screen and process keys. If process returns false, exit editor *)
 let rec loop () =
     refresh_screen ();
     if process_key () then loop ()
-    else (clear_screen (); exit_raw ());;
+    else exit ();;
 
 (* Activate raw mode before starting main loop *)
-let () = enter_raw (); load_keymap "default"; loop ();;
+let () = enter_raw (); load_keymap "default";
+    try
+        loop ();;
+    with
+    | _ -> print_endline "Something went wrong"; exit ();;
+

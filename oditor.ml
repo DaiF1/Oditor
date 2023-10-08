@@ -22,12 +22,17 @@ let speclist = [];;
 store_keymap "default" setup_defaultkeymaps;;
 store_keymap "vim" setup_vimkeymaps;;
 
+(* Exit oditor *)
+let exit () =
+    clear_screen ();
+    exit_raw ();;
+
 (* Main loop
     Refresh screen and process keys. If process returns false, exit editor *)
 let rec loop () =
     refresh_screen ();
     if process_key () then loop ()
-    else (clear_screen (); exit_raw ());;
+    else exit ();;
 
 (* Activate raw mode before starting main loop *)
 let () = 
@@ -35,5 +40,10 @@ let () =
     enter_raw (); load_keymap "default";
     if !filename <> "" then
         open_file !filename;
-    loop ();;
-
+    try
+        loop ()
+    with e ->
+        let msg = Printexc.to_string e
+        and stack = Printexc.get_backtrace () in
+            Printf.eprintf "Something went wrong: %s%s" msg stack;
+            exit ();;

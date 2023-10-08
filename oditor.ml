@@ -30,6 +30,9 @@ let rec loop () =
 let () = enter_raw (); load_keymap "default";
     try
         loop ();;
-    with
-    | _ -> print_endline "Something went wrong"; exit ();;
+    with e ->
+        let msg = Printexc.to_string e
+        and stack = Printexc.get_backtrace () in
+            Printf.eprintf "Something went wrong: %s%s" msg stack;
+            exit ();;
 

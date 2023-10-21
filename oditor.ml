@@ -22,6 +22,24 @@ let speclist = [];;
 store_keymap "default" setup_defaultkeymaps;;
 store_keymap "vim" setup_vimkeymaps;;
 
+(* Laod configuration file *)
+let find_value key yaml = match yaml with
+    | `O assoc -> List.assoc_opt key assoc
+    | _ -> None;;
+
+let parse_config () =
+    if Sys.file_exists "config.yml" then
+        let config = (Yaml_unix.of_file_exn (Fpath.v "config.yml")) in
+        match find_value "keymaps" config with
+            | Some value -> begin
+                                match value with
+                                | `String s -> load_keymap s
+                                | _ -> load_keymap "default"
+                            end
+            | None -> load_keymap "default"
+    else
+        load_keymap "default";;
+
 (* Exit oditor *)
 let exit () =
     clear_screen ();
@@ -37,7 +55,7 @@ let rec loop () =
 (* Activate raw mode before starting main loop *)
 let () = 
     Arg.parse speclist anonymous_process usage_msg;
-    enter_raw (); load_keymap "default";
+    enter_raw (); parse_config ();
     if !filename <> "" then
         open_file !filename;
     try

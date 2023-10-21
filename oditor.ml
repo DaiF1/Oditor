@@ -13,10 +13,13 @@ open Vim_keymaps;;
 
 (* Command line instructions setup *)
 let filename = ref "";;
+let config_path = ref "./config.yml";;
 
-let usage_msg = "oditor [file]";;
+let usage_msg = "oditor [-c config] [file]";;
 let anonymous_process file = filename := file;;
-let speclist = [];;
+let speclist = [
+    ("-c", Arg.Set_string config_path, "config file")
+];;
 
 (* Keymap setup *)
 store_keymap "default" setup_defaultkeymaps;;
@@ -28,8 +31,8 @@ let find_value key yaml = match yaml with
     | _ -> None;;
 
 let parse_config () =
-    if Sys.file_exists "config.yml" then
-        let config = (Yaml_unix.of_file_exn (Fpath.v "config.yml")) in
+    if Sys.file_exists !config_path then
+        let config = (Yaml_unix.of_file_exn (Fpath.v !config_path)) in
         match find_value "keymaps" config with
             | Some value -> begin
                                 match value with

@@ -5,10 +5,18 @@
 *)
 
 open Editor;;
+open Files;;
 open Display;;
 open Input;;
 open Default_keymaps;;
 open Vim_keymaps;;
+
+(* Command line instructions setup *)
+let filename = ref "";;
+
+let usage_msg = "oditor [file]";;
+let anonymous_process file = filename := file;;
+let speclist = [];;
 
 (* Keymap setup *)
 store_keymap "default" setup_defaultkeymaps;;
@@ -27,7 +35,11 @@ let rec loop () =
     else exit ();;
 
 (* Activate raw mode before starting main loop *)
-let () = enter_raw (); load_keymap "default";
+let () = 
+    Arg.parse speclist anonymous_process usage_msg;
+    enter_raw (); load_keymap "default";
+    if !filename <> "" then
+        open_file !filename;
     try
         loop ()
     with e ->
@@ -35,4 +47,3 @@ let () = enter_raw (); load_keymap "default";
         and stack = Printexc.get_backtrace () in
             Printf.eprintf "Something went wrong: %s%s" msg stack;
             exit ();;
-

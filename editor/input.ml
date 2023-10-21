@@ -45,6 +45,7 @@ let store_keymap name setup_fun =
 let rec load_keymap name =
     if term.current_keymap <> name then
     begin
+        Hashtbl.clear term.controls;
         let func = Hashtbl.find_opt term.keymaps name in
         match func with
             | None -> if term.current_keymap = "none" then

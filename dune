@@ -1,4 +1,4 @@
 (executable
   (name oditor)
   (modules oditor)
-  (libraries yaml yaml.unix editor files input display default_keymaps vim_keymaps))
+  (libraries editor files input display default_keymaps vim_keymaps config))

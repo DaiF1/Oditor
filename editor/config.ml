@@ -25,6 +25,12 @@ let config_keymap config =
 
 (* Load color config *)
 
+let color_regex = "^#[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]$";;
+
+let valid_color color =
+    let regex_col = Str.regexp color_regex in
+    Str.string_match regex_col color 0;;
+
 let rgb_to_ansi color =
     (* Use int_of_string to convert hex to decimal, and put it back into string *)
     let r = string_of_int (int_of_string ("0x" ^ String.sub color 1 2)) and
@@ -36,9 +42,12 @@ let config_colors config =
     let rec process_colors l = match l with
         | [] -> ()
         | (key, elt)::l -> match elt with
-                | `String s -> term.colors <- ColorList.remove key term.colors;
-                    term.colors <- ColorList.add key (rgb_to_ansi s) term.colors;
-                    process_colors l
+                | `String s -> if valid_color s then
+                    begin
+                        term.colors <- ColorList.remove key term.colors;
+                        term.colors <- ColorList.add key (rgb_to_ansi s) term.colors;
+                        process_colors l
+                    end
                 | _ -> ()
     in match find_value "colors" config with
         | Some value -> begin

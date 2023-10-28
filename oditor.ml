@@ -31,15 +31,17 @@ let find_value key yaml = match yaml with
     | _ -> None;;
 
 let parse_config () =
-    if Sys.file_exists !config_path then
-        let config = (Yaml_unix.of_file_exn (Fpath.v !config_path)) in
-        match find_value "keymaps" config with
+    let load config value load_func default = 
+        match find_value value config with
             | Some value -> begin
                                 match value with
-                                | `String s -> load_keymap s
-                                | _ -> load_keymap "default"
+                                | `String s -> load_func s
+                                | _ -> load_func default
                             end
-            | None -> load_keymap "default"
+            | None -> load_func default
+    in if Sys.file_exists !config_path then
+        let config = (Yaml_unix.of_file_exn (Fpath.v !config_path)) in
+        load config "keymaps" load_keymap "default"
     else
         load_keymap "default";;
 

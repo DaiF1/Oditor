@@ -1,6 +1,6 @@
 (*
     file: oditor.ml
-    dependencies: editor.ml display.ml input.ml
+    dependencies: editor.ml display.ml input.ml config.ml
     Main file
 *)
 
@@ -10,6 +10,7 @@ open Display;;
 open Input;;
 open Default_keymaps;;
 open Vim_keymaps;;
+open Config;;
 
 (* Command line instructions setup *)
 let filename = ref "";;
@@ -24,26 +25,6 @@ let speclist = [
 (* Keymap setup *)
 store_keymap "default" setup_defaultkeymaps;;
 store_keymap "vim" setup_vimkeymaps;;
-
-(* Laod configuration file *)
-let find_value key yaml = match yaml with
-    | `O assoc -> List.assoc_opt key assoc
-    | _ -> None;;
-
-let parse_config () =
-    let load config value load_func default = 
-        match find_value value config with
-            | Some value -> begin
-                                match value with
-                                | `String s -> load_func s
-                                | _ -> load_func default
-                            end
-            | None -> load_func default
-    in if Sys.file_exists !config_path then
-        let config = (Yaml_unix.of_file_exn (Fpath.v !config_path)) in
-        load config "keymaps" load_keymap "default"
-    else
-        load_keymap "default";;
 
 (* Exit oditor *)
 let exit () =
@@ -60,7 +41,7 @@ let rec loop () =
 (* Activate raw mode before starting main loop *)
 let () = 
     Arg.parse speclist anonymous_process usage_msg;
-    enter_raw (); parse_config ();
+    enter_raw (); parse_config !config_path;
     if !filename <> "" then
         open_file !filename;
     try

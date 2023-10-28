@@ -9,13 +9,13 @@ open Editor;;
 (* Convert hltype to escape code
     param code: hltype to convert *)
 let hl_to_esc code = match code with
-    | DEFAULT -> "\x1b[0m"
-    | DIGIT -> "\x1b[34m"
-    | STRING -> "\x1b[32m"
-    | CHAR -> "\x1b[35m"
-    | COMMENT -> "\x1b[37m"
-    | KEYWORD -> "\x1b[31m"
-    | OPERATOR -> "\x1b[33m";;
+    | DEFAULT -> ColorList.find "default" term.colors
+    | DIGIT -> ColorList.find "digit" term.colors
+    | STRING -> ColorList.find "string" term.colors
+    | CHAR -> ColorList.find "char" term.colors
+    | COMMENT -> ColorList.find "comment" term.colors
+    | KEYWORD -> ColorList.find "keyword" term.colors
+    | OPERATOR -> ColorList.find "operator" term.colors;;
 
 (* OCaml keywords in alphabetic order *)
 let keywords = ["and"; "as"; "assert"; "asr"; "begin"; "class"; "constraint";

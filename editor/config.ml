@@ -24,12 +24,20 @@ let config_keymap config =
         | None -> load_keymap "default";;
 
 (* Load color config *)
+
+let rgb_to_ansi color =
+    (* Use int_of_string to convert hex to decimal, and put it back into string *)
+    let r = string_of_int (int_of_string ("0x" ^ String.sub color 1 2)) and
+    g = string_of_int (int_of_string ("0x" ^ String.sub color 3 2)) and
+    b = string_of_int (int_of_string ("0x" ^ String.sub color 5 2)) in
+    "\x1b[38;2;" ^ r ^ ";" ^ g ^ ";" ^ b ^ "m";;
+
 let config_colors config =
     let rec process_colors l = match l with
         | [] -> ()
         | (key, elt)::l -> match elt with
                 | `String s -> term.colors <- ColorList.remove key term.colors;
-                    term.colors <- ColorList.add key s term.colors;
+                    term.colors <- ColorList.add key (rgb_to_ansi s) term.colors;
                     process_colors l
                 | _ -> ()
     in match find_value "colors" config with

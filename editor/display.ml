@@ -7,6 +7,23 @@
 open Editor;;
 open Colors;;
 
+let str_sub str off max = 
+    let rec skip_esc str = match str with
+        | [] -> []
+        | e::l when e = 'm' -> l
+        | _::l -> skip_esc l
+    in let rec sub str off max = match str with
+        | [] -> []
+        | _::_ when max = 0 -> []
+        | c::str -> begin
+                    match c with
+                    | '\x1b' -> c::sub (skip_esc str) off max
+                    | c when off <> 0 -> c::sub str (off - 1) max
+                    | c -> c::sub str off (max - 1)
+               end
+    in let str_l = str |> String.to_seq |> List.of_seq
+    in sub str_l off max |> List.to_seq |> String.of_seq;;
+
 (* Draw text on editor, tildes if buffer empty *)
 let draw_rows () =
     (* Oditor text description. Visible only with empty buffer *)
@@ -40,12 +57,7 @@ let draw_rows () =
         param line: line to process (string)
         param off: terminal x offset *)
     in let cut_lign line off =
-        let max = term.cols in
-        let l = String.length line in
-        let len = if l - off > max then max
-            else l - off in
-        if len > 0 then String.sub line off len
-        else ""
+        str_sub line off term.cols
     (* Return text buffer after applying vertical offset
         param text: text to load
         param off: line offset before current text *)

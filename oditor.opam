@@ -17,5 +17,9 @@ build: [
   "./oditor.exe"
   "@install"
   ]
+  [
+  "dune"
+  "install"
+  ]
 ]
 dev-repo: "git+https://github.com/DaiF1/Oditor"

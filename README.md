@@ -3,12 +3,10 @@ A simple text editor written in OCaml
 
 ![demo](img/demo.gif)
 
-## How to run the program ?
+## Install Oditor
 
-Easy,
-- clone the repo
-- `cd Oditor`
-- `dune exec ./oditor.exe`
+To install Oditor, simply clone the repository and use the command
+`opam install .` at its root.
 
 ## Text editing
 

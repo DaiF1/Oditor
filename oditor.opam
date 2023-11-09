@@ -1,0 +1,32 @@
+opam-version: "2.0"
+synopsis: "A text editor written in OCaml, for OCaml"
+version: "0.0.1"
+description: """
+A terminal based text editor, allowing for file edition and simple configuration
+"""
+maintainer: ["Julie Fiadino {DaiF} <julie.fiadino@gmail.com>"]
+authors: ["Julie Fiadino"]
+homepage: "https://github.com/DaiF1/Oditor"
+bug-reports: "https://github.com/DaiF1/Oditor/issues"
+
+depends: [
+  "dune" {>= "3.2"}
+  "terminal_size"
+  "yaml"
+]
+build: [
+  [
+  "dune"
+  "build"
+  "-p"
+  name
+  "@install"
+  ]
+]
+install: [
+  [
+  "dune"
+  "install"
+  ]
+]
+dev-repo: "git+https://github.com/DaiF1/Oditor"

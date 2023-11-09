@@ -2,3 +2,7 @@
   (name oditor)
   (modules oditor)
   (libraries editor files input display default_keymaps vim_keymaps config))
+
+(install
+  (section bin)
+  (files (oditor.exe as oditor)))

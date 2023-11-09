@@ -6,6 +6,9 @@ A terminal based text editor, allowing for file edition and simple configuration
 """
 maintainer: ["Julie Fiadino {DaiF} <julie.fiadino@gmail.com>"]
 authors: ["Julie Fiadino"]
+homepage: "https://github.com/DaiF1/Oditor"
+bug-reports: "https://github.com/DaiF1/Oditor/issues"
+
 depends: [
   "dune" {>= "3.2"}
   "terminal_size"

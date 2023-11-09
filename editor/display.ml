@@ -8,21 +8,19 @@ open Editor;;
 open Colors;;
 
 let str_sub str off max = 
-    let rec skip_esc str = match str with
-        | [] -> []
-        | e::l when e = 'm' -> l
-        | _::l -> skip_esc l
-    in let rec sub str off max = match str with
+    let rec sub str off max esc = match str with
         | [] -> []
         | _::_ when max = 0 -> []
         | c::str -> begin
                     match c with
-                    | '\x1b' -> c::sub (skip_esc str) off max
-                    | c when off <> 0 -> c::sub str (off - 1) max
-                    | c -> c::sub str off (max - 1)
+                    | '\x1b' -> c::sub str off max true
+                    | c when esc && c = 'm' -> c::sub str off max false
+                    | c when esc -> c::sub str off max esc
+                    | _ when off > 0 -> sub str (off - 1) max esc
+                    | c -> c::sub str off (max - 1) esc
                end
     in let str_l = str |> String.to_seq |> List.of_seq
-    in sub str_l off max |> List.to_seq |> String.of_seq;;
+    in sub str_l off max false |> List.to_seq |> String.of_seq;;
 
 (* Draw text on editor, tildes if buffer empty *)
 let draw_rows () =

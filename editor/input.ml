@@ -42,8 +42,17 @@ let store_keymap name setup_fun =
 
 (* Load a given keymap
     param name: keymap name *)
-let load_keymap name =
-    let func = Hashtbl.find_opt term.keymaps name in
-    match func with
-        | None -> term.help <- "Unable to load keymap"
-        | Some f -> f ();;
+let rec load_keymap name =
+    if term.current_keymap <> name then
+    begin
+        Hashtbl.clear term.controls;
+        let func = Hashtbl.find_opt term.keymaps name in
+        match func with
+            | None -> if term.current_keymap = "none" then
+                      begin
+                          load_keymap "default";
+                          term.current_keymap <- "default"
+                      end;
+                      term.help <- "Unable to load keymap"
+            | Some f -> term.current_keymap <- name; f ()
+    end;;

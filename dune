@@ -1,4 +1,4 @@
 (executable
   (name oditor)
   (modules oditor)
-  (libraries editor files input display default_keymaps vim_keymaps))
+  (libraries editor files input display default_keymaps vim_keymaps config))

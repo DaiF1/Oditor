@@ -9,13 +9,13 @@ open Editor;;
 (* Convert hltype to escape code
     param code: hltype to convert *)
 let hl_to_esc code = match code with
-    | DEFAULT -> "\x1b[0m"
-    | DIGIT -> "\x1b[34m"
-    | STRING -> "\x1b[32m"
-    | CHAR -> "\x1b[35m"
-    | COMMENT -> "\x1b[37m"
-    | KEYWORD1 -> "\x1b[31m"
-    | KEYWORD2 -> "\x1b[33m";;
+    | DEFAULT -> ColorList.find "default" term.colors
+    | DIGIT -> ColorList.find "digit" term.colors
+    | STRING -> ColorList.find "string" term.colors
+    | CHAR -> ColorList.find "char" term.colors
+    | COMMENT -> ColorList.find "comment" term.colors
+    | KEYWORD -> ColorList.find "keyword" term.colors
+    | OPERATOR -> ColorList.find "operator" term.colors;;
 
 (* OCaml keywords in alphabetic order *)
 let keywords = ["and"; "as"; "assert"; "asr"; "begin"; "class"; "constraint";
@@ -27,8 +27,8 @@ let keywords = ["and"; "as"; "assert"; "asr"; "begin"; "class"; "constraint";
     "try"; "type"; "val"; "virtual"; "when"; "while"; "with"
 ];;
 
-(* Ocaml other keywords in alphabetic order *)
-let other_keywords = ["!="; "#"; "&"; "&&"; "'"; "("; ")"; "*"; "*."; "+"; "+."; 
+(* Ocaml operators in alphabetic order *)
+let operators = ["!="; "#"; "&"; "&&"; "'"; "("; ")"; "*"; "*."; "+"; "+."; 
     ","; "-"; "-."; "->"; "."; ".."; ".~"; ":"; "::"; ":="; ":>"; ";"; ";;"; 
     "<"; "<-"; "="; ">"; ">]"; ">}"; "?"; "["; "[<"; "[>"; "[|"; "]"; "_"; 
     "`"; "{"; "{<"; "|"; "|]"; "||"; "}"; "~"
@@ -98,7 +98,7 @@ let update_hl_row row prev =
                             let (h, prev) = hl (i + 2) COMMENT false in
                             (COMMENT::COMMENT::h, prev)
                         else let (h, prev) = hl (i + 1) DEFAULT true in
-                            (KEYWORD2::h, prev)
+                            (OPERATOR::h, prev)
                 | '*' when prev_hl = COMMENT ->
                         if i + 1 < row.size && row.chars.[i + 1] = ')' then
                             let (h, prev) = hl (i + 2) DEFAULT true in
@@ -113,17 +113,17 @@ let update_hl_row row prev =
                         else if prev_hl = COMMENT then
                             let (h, prev) = hl (i + 1) COMMENT false in
                                 (COMMENT::h, prev)
-                        else let n = check_kw other_keywords i in
+                        else let n = check_kw operators i in
                             if n <> 0 then
                                 let (h, prev) = hl (i + n) DEFAULT true in
-                                (build_key_hl n KEYWORD2 @ h, prev)
+                                (build_key_hl n OPERATOR @ h, prev)
                         else if prev_sep then
                             let n = check_kw keywords i in
                             if n = 0 then 
                                 let (h, prev) = hl (i + 1) DEFAULT (is_separator chr) in
                                 (DEFAULT::h, prev)
                             else let (h, prev) = hl (i + n) DEFAULT false in
-                                (build_key_hl n KEYWORD1 @ h, prev)
+                                (build_key_hl n KEYWORD @ h, prev)
                         else let (h, prev) = hl (i + 1) DEFAULT (is_separator chr) in
                             (DEFAULT::h, prev)
             end

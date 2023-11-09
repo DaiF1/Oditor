@@ -8,15 +8,28 @@
 (* Oditor version *)
 let version = "0.1.0"
 
-(* Highlight type definition *)
 type hltype =
     | DEFAULT
     | DIGIT
     | STRING
     | CHAR
     | COMMENT
-    | KEYWORD1
-    | KEYWORD2;;
+    | KEYWORD
+    | OPERATOR;;
+
+(* Colors dict module *)
+module ColorList = Map.Make(String);;
+
+let build_colors () =
+    let l = ColorList.empty in
+    let l = ColorList.add "default" "\x1b[0m" l in
+    let l = ColorList.add "digit" "\x1b[34m" l in
+    let l = ColorList.add "string" "\x1b[32m" l in
+    let l = ColorList.add "char" "\x1b[35m" l in
+    let l = ColorList.add "comment" "\x1b[37m" l in
+    let l = ColorList.add "keyword" "\x1b[31m" l in
+    let l = ColorList.add "operator" "\x1b[33m" l in
+    l;;
 
 (* Editor Row definition *)
 type erow = {
@@ -48,6 +61,7 @@ type termio = {
     mutable colsoff : int;      (* Current column offset *)
     mutable x : int;            (* Cursor x position *)
     mutable y : int;            (* Cursor y position *)
+    mutable colors : string ColorList.t;
 
     (* File info *)
     mutable filename : string;  (* Current file name *)
@@ -65,6 +79,7 @@ type termio = {
         (char, emode -> bool) Hashtbl.t; (* Input list *)
     mutable default_proc :
         (char -> emode -> bool); (* Default input processing function *)
+    mutable current_keymap : string;      (* Current keymap name *)
     mutable keymaps :
         (string, unit -> unit) Hashtbl.t; (* Keymap loading functions list *)
 
@@ -84,6 +99,7 @@ let term =
         colsoff = 0;
         x = 0;
         y = 0;
+        colors = build_colors ();
 
         filename = "";
         text = [];
@@ -97,6 +113,7 @@ let term =
         controls = Hashtbl.create 10;
         default_proc = (fun _ _ -> true);
 
+        current_keymap = "none";
         keymaps = Hashtbl.create 2;
 
         io = Unix.tcgetattr Unix.stdin

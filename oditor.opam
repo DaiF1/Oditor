@@ -12,6 +12,7 @@ bug-reports: "https://github.com/DaiF1/Oditor/issues"
 depends: [
   "dune" {>= "3.2"}
   "terminal_size"
+  "yaml"
 ]
 build: [
   [

@@ -14,7 +14,8 @@ build: [
   [
   "dune"
   "build"
-  "./oditor.exe"
+  "-p"
+  name
   "@install"
   ]
   [

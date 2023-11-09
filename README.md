@@ -79,6 +79,26 @@ Here are the supported commands with the vim keymaps:
 
 You can use `Ctrl+W` to empty the command buffer.
 
+## Configuration
+
+You can configure Oditor using a file named `config.yml`. Its default location
+is in `~/.config/oditor`.
+
+Here is a sample config :
+
+```yml
+keymaps: default # Can be default or vim. When nothing is specified, Oditor will use default
+
+colors: # Colors for syntax highlighting. Ansi VGA colors used if nothing is specified
+    default: "#ffffff"
+    digit: "#ffff00"
+    string: "#00ff00"
+    char: "#00ffff"
+    comment: "#999999"
+    keyword: "#ff0000"
+    operator: "ff00ff"
+```
+
 ## Coming soon
 
 - Autocompletion

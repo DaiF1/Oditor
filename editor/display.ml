@@ -8,26 +8,26 @@ open Editor;;
 open Colors;;
 
 let str_sub str off max = 
-    let rec skip_esc str = match str with
-        | [] -> []
-        | e::l when e = 'm' -> l
-        | _::l -> skip_esc l
-    in let rec sub str off max = match str with
+    let rec sub str off max esc = match str with
         | [] -> []
         | _::_ when max = 0 -> []
         | c::str -> begin
                     match c with
-                    | '\x1b' -> c::sub (skip_esc str) off max
-                    | c when off <> 0 -> c::sub str (off - 1) max
-                    | c -> c::sub str off (max - 1)
+                    | '\x1b' -> c::sub str off max true
+                    | c when esc && c = 'm' -> c::sub str off max false
+                    | c when esc -> c::sub str off max esc
+                    | _ when off > 0 -> sub str (off - 1) max esc
+                    | c -> c::sub str off (max - 1) esc
                end
     in let str_l = str |> String.to_seq |> List.of_seq
-    in sub str_l off max |> List.to_seq |> String.of_seq;;
+    in sub str_l off max false |> List.to_seq |> String.of_seq;;
 
 (* Draw text on editor, tildes if buffer empty *)
 let draw_rows () =
+    let default_color =
+        ColorList.find "default" term.colors
     (* Oditor text description. Visible only with empty buffer *)
-    let welcome_text =
+    in let welcome_text =
         let text = "Oditor -- An editor for OCaml, in OCaml" and len = 39 in
         let offset = (term.cols - len) / 2 in
         "~" ^ String.make offset ' ' ^ text ^ "\r\n"
@@ -45,7 +45,7 @@ let draw_rows () =
         in let file = if term.filename = "" then "[No Name]" else term.filename
         (* Editor mode *)
         in let status = 
-            "\x1b[7m\x1b[1m " ^ string_of_mode term.mode ^ " \x1b[0m " ^ file
+            "\x1b[7m\x1b[1m " ^ string_of_mode term.mode ^ " \x1b[0m" ^ default_color ^ " " ^ file
         (* Current lign and completion *)
         and stats = "line " ^ string_of_int (term.y + term.rowoff) ^ " (" ^
             string_of_int completion ^ "%)" in
@@ -74,18 +74,22 @@ let draw_rows () =
         | (0, _) -> output_string stdout "\x1b[K"; (* Clear lign *)
             let str = if term.mode = COMMAND then ":" ^ term.command
                 else term.help in
+            output_string stdout default_color;
             output_string stdout str
         (* Status bar lign *)
         | (1, l) -> output_string stdout "\x1b[K"; (* Clear lign *)
+            output_string stdout default_color;
             output_string stdout status_bar; 
             output_string stdout "\r\n"; draw (y - 1) l
         (* Default state. Write lign to screen *)
         | (y, l::t) ->
             output_string stdout "\x1b[K"; (* Clear lign *)
+            output_string stdout default_color;
             output_string stdout (cut_lign (hl_row l DEFAULT) term.colsoff);
             output_string stdout "\r\n"; draw (y - 1) t
         (* Buffer empty case. Writes '~' or welcome_text to screen *)
         | (y, []) -> output_string stdout "\x1b[K"; (* Clear lign *)
+            output_string stdout default_color;
             if term.text = [] then
             begin
                 if y = term.rows / 2 + 2 then output_string stdout welcome_text

@@ -50,7 +50,7 @@ let draw_rows () =
         and stats = "line " ^ string_of_int (term.y + term.rowoff) ^ " (" ^
             string_of_int completion ^ "%)" in
         (* the '+11' is to nullify the escape codes for formatting text *)
-        let offset = (term.cols - String.length status - String.length stats + 11)
+        let offset = (term.cols - String.length status - String.length stats + 12 + String.length (default_color))
         in status ^ String.make offset ' ' ^ stats
 
     (* Cut lign if larger than term size 

@@ -14,7 +14,6 @@ open Config;;
 
 (* Command line instructions setup *)
 let filename = ref "";;
-let config_path = ref "./config.yml";;
 let config_path = ref (Unix.getenv "HOME" ^ "/.config/oditor/config.yml");;
 
 let usage_msg = "oditor [-c config] [file]";;
